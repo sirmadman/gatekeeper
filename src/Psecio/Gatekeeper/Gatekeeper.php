@@ -3,6 +3,10 @@
 namespace Psecio\Gatekeeper;
 
 use \Psecio\Gatekeeper\Model\User;
+use Dotenv\Dotenv;
+use Dotenv\Repository\Adapter\EnvConstAdapter;
+use Dotenv\Repository\Adapter\ServerConstAdapter;
+use Dotenv\Repository\RepositoryBuilder;
 
 class Gatekeeper
 {
@@ -237,21 +241,23 @@ class Gatekeeper
      * @param string $envPath Path to the .env file
      * @return array|boolean Array of data if found, false if load fails
      */
-    protected static function loadDotEnv($envPath)
+    protected static function loadDotEnv(string $envPath): mixed
     {
         try {
-            $dotenv = new \Dotenv\Dotenv($envPath);
-            $dotenv->load();
+            $repository = RepositoryBuilder::createWithDefaultAdapters()
+            ->immutable()
+            ->make();
+            $env = (Dotenv::create($repository, $envPath))->load();
 
-            $config = array(
-                'username' => $_SERVER['DB_USER'],
-                'password' => $_SERVER['DB_PASS'],
-                'name' => $_SERVER['DB_NAME'],
-                'type' => (isset($_SERVER['DB_TYPE'])) ? $_SERVER['DB_TYPE'] : 'mysql',
-                'host' => $_SERVER['DB_HOST']
-            );
-            if (isset($_SERVER['DB_PREFIX'])) {
-                $config['prefix'] = $_SERVER['DB_PREFIX'];
+            $config = [
+                'username' => $env['DB_USER'],
+                'password' => $env['DB_PASS'],
+                'name' => $env['DB_NAME'],
+                'type' => $env['DB_TYPE'] ?? 'mysql',
+                'host' => $env['DB_HOST']
+            ];
+            if (isset($env['DB_PREFIX'])) {
+                $config['prefix'] = $env['DB_PREFIX'];
             }
             return $config;
         } catch (\Exception $e) {
