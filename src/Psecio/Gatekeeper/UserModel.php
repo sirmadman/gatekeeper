@@ -59,6 +59,16 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'column' => 'last_name',
             'type' => 'varchar'
         ),
+        'phone' => array(
+            'description' => 'Telephone',
+            'column' => 'phone',
+            'type' => 'varchar'
+        ),
+        'mobile' => array(
+            'description' => 'Mobile phone',
+            'column' => 'mobile',
+            'type' => 'varchar'
+        ),
         'created' => array(
             'description' => 'Date Created',
             'column' => 'created',

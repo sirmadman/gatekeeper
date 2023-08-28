@@ -2,7 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
-class Base extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class Base extends TestCase
 {
     public function buildMock($return, $type = 'find')
     {

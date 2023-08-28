@@ -158,6 +158,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
         $ds = $this->buildMock(true, 'save');
         $user = new UserModel($ds, array('id' => 1234));
 
+        $this->expectException(\Psecio\Gatekeeper\Exception\PasswordResetInvalid::class);
         $user->checkResetPasswordCode('code');
     }
 
@@ -174,7 +175,8 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
         $user->resetCode = $code;
         $user->resetCodeTimeout = date('Y/m/d H:i:s', strtotime('-1 day'));
 
-        $this->assertTrue($user->checkResetPasswordCode($code));
+        $this->expectException(\Psecio\Gatekeeper\Exception\PasswordResetTimeout::class);
+        $user->checkResetPasswordCode($code);
     }
 
     /**
@@ -484,6 +486,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
         $ds = $this->buildMock(true, 'save');
 
         $user = new UserModel($ds);
+        $this->expectException(\InvalidArgumentException::class);
         $result = $user->addSecurityQuestion(array());
     }
 
@@ -499,6 +502,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
 
         $passwordHash = password_hash('mypass', PASSWORD_DEFAULT);
         $user = new UserModel($ds, array('password' => $passwordHash));
+        $this->expectException(\InvalidArgumentException::class);
         $result = $user->addSecurityQuestion(array(
             'question' => 'Question #1',
             'answer' => 'mypass'

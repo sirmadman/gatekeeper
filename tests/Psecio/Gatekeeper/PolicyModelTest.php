@@ -6,12 +6,12 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
 {
     private $policy;
 
-    public function setUp()
+    public function setUp(): void
     {
         $ds = $this->buildMock(true, 'save');
         $this->policy = new PolicyModel($ds, ['id' => 1]);
     }
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->policy);
     }
@@ -71,6 +71,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
      */
     public function testInvalidExpressionFailure()
     {
+        $this->expectException(\Psecio\Gatekeeper\Exception\InvalidExpressionException::class);
         $this->policy->load([
             'expression' => 'user.username == "ccornutt"'
         ]);
@@ -89,6 +90,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
         $ds = $this->buildMock(true);
         $policy = new PolicyModel($ds);
 
+        $this->expectException(\Psecio\Gatekeeper\Exception\InvalidExpressionException::class);
         $this->policy->evaluate([]);
     }
 

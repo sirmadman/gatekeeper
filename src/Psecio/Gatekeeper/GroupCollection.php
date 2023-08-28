@@ -13,7 +13,7 @@ class GroupCollection extends \Psecio\Gatekeeper\Collection\Mysql
     {
         $prefix = $this->getPrefix();
         $data = array('groupId' => $groupId);
-        $sql = 'select g.* from '.$prefix.'groups g, '.$prefix.'group_parent gp'
+        $sql = 'select g.* from '.$prefix.'`groups` g, '.$prefix.'group_parent gp'
             .' where g.id = gp.group_id'
             .' and gp.parent_id = :groupId';
 
@@ -34,7 +34,7 @@ class GroupCollection extends \Psecio\Gatekeeper\Collection\Mysql
     {
         $prefix = $this->getPrefix();
         $data = array('permId' => $permId);
-        $sql = 'select g.* from '.$prefix.'groups g, '.$prefix.'group_permission gp'
+        $sql = 'select g.* from '.$prefix.'`groups` g, '.$prefix.'group_permission gp'
             .' where gp.permission_id = :permId'
             .' and gp.group_id = g.id';
 

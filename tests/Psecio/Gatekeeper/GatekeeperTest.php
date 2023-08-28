@@ -4,12 +4,12 @@ namespace Psecio\Gatekeeper;
 
 class GatekeeperTest extends \Psecio\Gatekeeper\Base
 {
-    public function setUp()
+    public function setUp(): void
     {
         // $config = array('test' => 1);
         // Gatekeeper::init(null, $config);
     }
-    public function tearDown()
+    public function tearDown(): void
     {
 
     }
@@ -86,6 +86,7 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
      */
     public function testCreateInvalidRestriction()
     {
+        $this->expectException(\InvalidArgumentException::class);
         Gatekeeper::restrict('foobar', array());
     }
 

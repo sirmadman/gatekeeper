@@ -39,3 +39,4 @@ nb-configuration.xml
 *.sublime-workspace
 
 .env
+.phpunit.result.cache

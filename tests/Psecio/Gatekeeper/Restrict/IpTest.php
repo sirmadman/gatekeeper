@@ -13,6 +13,7 @@ class IpTest extends \Psecio\Gatekeeper\Base
 	public function testEvaluateNoAddress()
 	{
 		$ip = new Ip(array());
+    $this->expectException(\Psecio\Gatekeeper\Exception\DataNotFoundException::class);
 		$ip->evaluate();
 	}
 

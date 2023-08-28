@@ -2,6 +2,8 @@
 
 namespace Psecio\Gatekeeper\DataSource;
 
+use InvalidArgumentException;
+
 class Mysql extends \Psecio\Gatekeeper\DataSource
 {
     /**
@@ -112,7 +114,7 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             $columns[$index] = $colName;
         }
 
-        $sql = 'insert into '.$model->getTableName()
+        $sql = 'insert into `'.$model->getTableName().'`'
             .' ('.implode(',', $columns).') values ('.implode(',', array_values($bind)).')';
         $result = $this->execute($sql, $data);
         if ($result !== false) {
@@ -145,11 +147,14 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
         $properties = $model->getProperties();
 
         foreach ($bind as $column => $name) {
+            if (!isset($properties[$column]['column'])) {
+                throw new InvalidArgumentException('Column "'.$column. '" is not defined!');
+            }
             $colName = $properties[$column]['column'];
             $update[] = $colName.' = '.$name;
         }
 
-        $sql = 'update '.$model->getTableName().' set '.implode(',', $update).' where ID = '.$model->id;
+        $sql = 'update `'.$model->getTableName().'` set '.implode(',', $update).' where ID = '.$model->id;
         return $this->execute($sql, $data);
     }
 
@@ -174,7 +179,7 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             $update[] = $column.' = '.$name;
         }
 
-        $sql = 'delete from '.$model->getTableName().' where '.implode(' and ', $update);
+        $sql = 'delete from `'.$model->getTableName().'` where '.implode(' and ', $update);
         return $this->execute($sql, $model->toArray());
     }
 
@@ -200,7 +205,7 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             $update[] = $column.' = '.$name;
         }
 
-        $sql = 'select * from '.$model->getTableName();
+        $sql = 'select * from `'.$model->getTableName().'`';
         if (!empty($update)) {
             $sql .= ' where '.implode(' and ', $update);
         }

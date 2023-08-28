@@ -1,20 +1,8 @@
-<phpunit backupGlobals="false"
-         convertErrorsToExceptions="true"
-         convertWarningsToExceptions="true"
-         convertNoticesToExceptions="true"
-         mapTestClassNameToCoveredClassName="true"
-         bootstrap="tests/bootstrap.php"
-         strict="false"
-         verbose="true"
-         colors="true">
-    <testsuites>
-        <testsuite name="csrf">
-            <directory>./tests</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" convertErrorsToExceptions="true" convertWarningsToExceptions="true" convertNoticesToExceptions="true" bootstrap="tests/bootstrap.php" verbose="true" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+  </coverage>
 </phpunit>

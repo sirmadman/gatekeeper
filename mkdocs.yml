@@ -1,6 +1,6 @@
 site_name: Gatekeeper
 theme: readthedocs
-repo_url: http://github.com/psecio/gatekeeper
+repo_url: http://github.com/sirmadman/gatekeeper
 site_url: http://gatekeeper-auth.readthedocs.org
 pages:
 - 'index.md'
