@@ -7,6 +7,7 @@ use Dotenv\Dotenv;
 use Dotenv\Repository\Adapter\EnvConstAdapter;
 use Dotenv\Repository\Adapter\ServerConstAdapter;
 use Dotenv\Repository\RepositoryBuilder;
+use Psr\Log\LoggerInterface;
 
 class Gatekeeper
 {
@@ -64,10 +65,10 @@ class Gatekeeper
      * @param \Psecio\Gatekeeper\DataSource $datasource Custom datasource provider
      */
     public static function init(
-        $envPath = null,
+        ?string $envPath = null,
         array $config = array(),
-        \Psecio\Gatekeeper\DataSource $datasource = null,
-        $logger = null
+        ?\Psecio\Gatekeeper\DataSource $datasource = null,
+        ?LoggerInterface $logger = null
     )
     {
         $result = self::loadConfig($config, $envPath);
@@ -139,7 +140,7 @@ class Gatekeeper
      *
      * @param \Psr\Log\LoggerInterface|null $logger PSR logger or null
      */
-    public static function setLogger(\Psr\Log\LoggerInterface $logger = null)
+    public static function setLogger(?LoggerInterface $logger = null)
     {
         if ($logger === null) {
             // make a monolog logger that logs to /tmp by default
