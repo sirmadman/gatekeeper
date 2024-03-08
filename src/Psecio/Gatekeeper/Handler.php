@@ -20,7 +20,7 @@ abstract class Handler
      * Data source instance
      * @var \Psecio\Gatekeeper\DataSource
      */
-    protected Gatekeeper\Datasource $datasource;
+    protected Datasource $datasource;
 
     /**
      * Init the object and set up the name, arguments and data source
@@ -29,7 +29,7 @@ abstract class Handler
      * @param array $arguments Arguments to pass to handler
      * @param \Psecio\Gatekeeper\DataSource $datasource Data source instance
      */
-    public function __construct(string $name, array $arguments, Gatekeeper\DataSource $datasource)
+    public function __construct(string $name, array $arguments, DataSource $datasource)
     {
         $this->setArguments($arguments);
         $this->setName($name);
@@ -81,7 +81,7 @@ abstract class Handler
      *
      * @param \Psecio\Gatekeeper\DataSource $datasource data source instance (DB)
      */
-    public function setDb(Gatekeeper\DataSource $datasource): void
+    public function setDb(DataSource $datasource): void
     {
         $this->datasource = $datasource;
     }
@@ -91,7 +91,7 @@ abstract class Handler
      *
      * @return \Psecio\Gatekeeper\DataSource instance
      */
-    public function getDb(): Gatekeeper\DataSource
+    public function getDb(): DataSource
     {
         return $this->datasource;
     }
