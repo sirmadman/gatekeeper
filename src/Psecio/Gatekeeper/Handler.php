@@ -29,7 +29,7 @@ abstract class Handler
      * @param array $arguments Arguments to pass to handler
      * @param \Psecio\Gatekeeper\DataSource $datasource Data source instance
      */
-    public function __construct(string $name, array $arguments, Gatekeeper\DataSource $datasource): void
+    public function __construct(string $name, array $arguments, Gatekeeper\DataSource $datasource)
     {
         $this->setArguments($arguments);
         $this->setName($name);
