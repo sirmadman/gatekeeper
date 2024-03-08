@@ -19,7 +19,7 @@ class MysqlTest extends \Psecio\Gatekeeper\Base
 
         $mysql = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->setConstructorArgs(array($config, $pdo))
-            ->setMethods(array('buildPdo'))
+            ->onlyMethods(array('buildPdo'))
             ->getMock();
 
         $this->assertEquals($mysql->getDb(), $pdo);
@@ -33,7 +33,7 @@ class MysqlTest extends \Psecio\Gatekeeper\Base
     {
         $mysql = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('buildPdo'))
+            ->onlyMethods(array('buildPdo'))
             ->getMock();
 
         $db = (object)array('test' => 'foo');
@@ -52,7 +52,7 @@ class MysqlTest extends \Psecio\Gatekeeper\Base
 
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->setConstructorArgs(array($config, $pdo))
-            ->setMethods(array('buildPdo'))
+            ->onlyMethods(array('buildPdo'))
             ->getMock();
 
         $mysql = new \Psecio\Gatekeeper\MockModel($ds);

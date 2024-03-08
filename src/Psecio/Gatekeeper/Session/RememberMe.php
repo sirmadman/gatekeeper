@@ -2,46 +2,51 @@
 
 namespace Psecio\Gatekeeper\Session;
 
+use Psecio\Gatekeeper\DataSource;
+use Psecio\Gatekeeper\UserModel;
+use Psecio\Gatekeeper\AuthTokenModel;
+use DateTime;
+
 class RememberMe
 {
     /**
-     * Token name
-     * @var string
-     */
-    private $tokenName = 'gktoken';
+    * Token name
+    * @var string
+    */
+    private string $tokenName = 'gktoken';
 
     /**
-     * Default expiration time
-     * @var string
-     */
-    private $expireInterval = '+14 days';
+    * Default expiration time
+    * @var string
+    */
+    private string $expireInterval = '+14 days';
 
     /**
-     * Data (cookie) for use in token evaluation
-     * @var array
-     */
-    private $data = array();
+    * Data (cookie) for use in token evaluation
+    * @var array
+    */
+    private array $data = array();
 
     /**
-     * User instance to check against
-     * @var \Psecio\Gatekeeper\UserModel
-     */
-    private $user;
+    * User instance to check against
+    * @var \Psecio\Gatekeeper\UserModel
+    */
+    private UserModel $user;
 
     /**
-     * Datasource for use in making find//save requests
-     * @var \Psecio\Gatekeeper\DataSource
-     */
-    private $datasource;
+    * Datasource for use in making find//save requests
+    * @var \Psecio\Gatekeeper\DataSource
+    */
+    private DataSource $datasource;
 
     /**
-     * Init the object and set up the datasource, data and possibly a user
-     *
-     * @param \Psecio\Gatekeeper\DataSource $datasource Data source to use for operations
-     * @param array $data Data to use in evaluation
-     * @param \Psecio\Gatekeeper\UserModel|null $user User model instance [optional]
-     */
-    public function __construct(\Psecio\Gatekeeper\DataSource $datasource, array $data, \Psecio\Gatekeeper\UserModel $user = null)
+    * Init the object and set up the datasource, data and possibly a user
+    *
+    * @param \Psecio\Gatekeeper\DataSource $datasource Data source to use for operations
+    * @param array $data Data to use in evaluation
+    * @param \Psecio\Gatekeeper\UserModel|null $user User model instance [optional]
+    */
+    public function __construct(DataSource $datasource, array $data, UserModel $user = null)
     {
         $this->datasource = $datasource;
 
@@ -57,36 +62,36 @@ class RememberMe
     }
 
     /**
-     * Get the current data for the evaluation
-     */
-    public function getData()
+    * Get the current data for the evaluation
+    */
+    public function getData(): array
     {
         return $this->data;
     }
 
     /**
-     * Get the current user for evaluation
-     */
-    public function getUser()
+    * Get the current user for evaluation
+    */
+    public function getUser(): UserModel
     {
         return $this->user;
     }
 
     /**
-     * Get the current expiration interval
-     */
-    public function getExpireInterval()
+    * Get the current expiration interval
+    */
+    public function getExpireInterval(): string
     {
         return $this->expireInterval;
     }
 
     /**
-     * Setup the "remember me" session and cookies
-     *
-     * @param \Psecio\Gatekeeper\UserModel|null $user User model instance [optional]
-     * @return boolean Success/fail of setting up the session/cookies
-     */
-    public function setup(\Psecio\Gatekeeper\UserModel $user = null)
+    * Setup the "remember me" session and cookies
+    *
+    * @param \Psecio\Gatekeeper\UserModel|null $user User model instance [optional]
+    * @return boolean Success/fail of setting up the session/cookies
+    */
+    public function setup(UserModel $user = null): bool
     {
         $user = ($user === null) ? $this->user : $user;
         $userToken = $this->getUserToken($user);
@@ -105,13 +110,13 @@ class RememberMe
     }
 
     /**
-     * Verify the token if it exists
-     *     Removes the old token and sets up a new one if valid
-     *
-     * @param \Psecio\Gatekeeper\AuthTokenModel $token Token model instance
-     * @return boolean Pass/fail result of the validation
-     */
-    public function verify(\Psecio\Gatekeeper\AuthTokenModel $token = null)
+    * Verify the token if it exists
+    *     Removes the old token and sets up a new one if valid
+    *
+    * @param \Psecio\Gatekeeper\AuthTokenModel $token Token model instance
+    * @return boolean Pass/fail result of the validation
+    */
+    public function verify(AuthTokenModel $token = null): bool|UserModel
     {
         if (!isset($this->data[$this->tokenName])) {
             return false;
@@ -141,12 +146,12 @@ class RememberMe
     }
 
     /**
-     * Get the token information searching on given token string
-     *
-     * @param string $tokenValue Token string for search
-     * @return boolean|\Psecio\Gatekeeper\AuthTokenModel Instance if no query errors
-     */
-    public function getByToken($tokenValue)
+    * Get the token information searching on given token string
+    *
+    * @param string $tokenValue Token string for search
+    * @return boolean|\Psecio\Gatekeeper\AuthTokenModel Instance if no query errors
+    */
+    public function getByToken($tokenValue): bool|AuthTokenModel
     {
         $token = new \Psecio\Gatekeeper\AuthTokenModel($this->datasource);
         $result = $this->datasource->find($token, array('token' => $tokenValue));
@@ -154,41 +159,41 @@ class RememberMe
     }
 
     /**
-     * Get a token by its unique ID
-     *
-     * @param integer $tokenId Token ID
-     * @return boolean|\Psecio\Gatekeeper\AuthTokenModel instance
-     */
-    public function getById($tokenId)
+    * Get a token by its unique ID
+    *
+    * @param integer $tokenId Token ID
+    * @return boolean|\Psecio\Gatekeeper\AuthTokenModel instance
+    */
+    public function getById(int $tokenId): bool|AuthTokenModel
     {
-        $token = new \Psecio\Gatekeeper\AuthTokenModel($this->datasource);
+        $token = new AuthTokenModel($this->datasource);
         $result = $this->datasource->find($token, array('id' => $tokenId));
         return $result;
     }
 
     /**
-     * Get the token by user ID
-     *     Also performs evaluation to check if token is expired, returns false if so
-     *
-     * @param \Psecio\Gatekeeper\UserModel $user User model instance
-     * @return boolean|\Psecio\Gatekeeper\AuthTokenModel instance
-     */
-    public function getUserToken(\Psecio\Gatekeeper\UserModel $user)
+    * Get the token by user ID
+    *     Also performs evaluation to check if token is expired, returns false if so
+    *
+    * @param \Psecio\Gatekeeper\UserModel $user User model instance
+    * @return boolean|\Psecio\Gatekeeper\AuthTokenModel instance
+    */
+    public function getUserToken(UserModel $user): bool|AuthTokenModel
     {
-        $tokenModel = new \Psecio\Gatekeeper\AuthTokenModel($this->datasource);
+        $tokenModel = new AuthTokenModel($this->datasource);
         return $this->datasource->find($tokenModel, array('userId' => $user->id));
     }
 
     /**
-     * Check to see if the token has expired
-     *
-     * @param \Psecio\Gatekeeper\AuthTokenModel $token Token model instance
-     * @param boolean $delete Delete/don't delete the token if expired [optional]
-     * @return boolean Token expired/not expired
-     */
-    public function isExpired(\Psecio\Gatekeeper\AuthTokenModel $token, $delete = true)
+    * Check to see if the token has expired
+    *
+    * @param \Psecio\Gatekeeper\AuthTokenModel $token Token model instance
+    * @param boolean $delete Delete/don't delete the token if expired [optional]
+    * @return boolean Token expired/not expired
+    */
+    public function isExpired(AuthTokenModel $token, ?bool $delete = true): bool
     {
-        if ($token->expires !== null && new \Datetime() > new \DateTime($token->expires)) {
+        if ($token->expires !== null && new Datetime() > new DateTime($token->expires)) {
             if ($delete === true) {
                 $this->deleteToken($token->token);
             }
@@ -198,16 +203,16 @@ class RememberMe
     }
 
     /**
-     * Save the new token to the data source
-     *
-     * @param string $token Token string
-     * @param \Psecio\Gatekeeper\UserModel $user User model instance
-     * @return boolean|\Psecio\Gatekeeper\AuthTokenModel Success/fail of token creation or AuthTokenModel instance
-     */
-    public function saveToken($token, \Psecio\Gatekeeper\UserModel $user)
+    * Save the new token to the data source
+    *
+    * @param string $token Token string
+    * @param \Psecio\Gatekeeper\UserModel $user User model instance
+    * @return boolean|\Psecio\Gatekeeper\AuthTokenModel Success/fail of token creation or AuthTokenModel instance
+    */
+    public function saveToken(string $token, UserModel $user): bool|AuthTokenModel
     {
-        $expires = new \DateTime($this->expireInterval);
-        $tokenModel = new \Psecio\Gatekeeper\AuthTokenModel($this->datasource, array(
+        $expires = new DateTime($this->expireInterval);
+        $tokenModel = new AuthTokenModel($this->datasource, array(
             'token' => $token,
             'userId' => $user->id,
             'expires' => $expires->format('Y-m-d H:i:s')
@@ -217,27 +222,49 @@ class RememberMe
     }
 
     /**
-     * Delete the token by token string
-     *
-     * @param string $token Token hash string
-     * @return boolean Success/fail of token record deletion
-     */
-    public function deleteToken($token)
+    * Delete the token by token string
+    *
+    * @param string $token Token hash string
+    * @return boolean Success/fail of token record deletion
+    */
+    public function deleteToken(?string $token): bool
     {
-        $tokenModel = new \Psecio\Gatekeeper\AuthTokenModel($this->datasource);
-        $token = $this->datasource->find($tokenModel, array('token' => $token));
-        if ($token !== false) {
-            return $this->datasource->delete($token);
+        if (!isset($token)) {
+            return true;
+        }
+        $tokenModel = new AuthTokenModel($this->datasource);
+        $tokenResult = $this->datasource->find($tokenModel, array('token' => $token));
+        if ($tokenResult !== false) {
+            return $this->datasource->delete($tokenResult);
         }
         return false;
     }
 
     /**
-     * Generate the token value
-     *
-     * @return string Token hash
-     */
-    public function generateToken()
+    * Destroy the "remember me" session and cookies
+    *
+    * @param string $token Token hash string
+    * @return boolean Success/fail of destroying the session/cookies
+    */
+    public function destroyToken(?string $token = null): bool
+    {
+        $tokenModel = new AuthTokenModel($this->datasource);
+        $tokenResult = $this->datasource->find($tokenModel, array('token' => $token));
+
+        if ($tokenResult !== false) {
+            if ($this->datasource->delete($tokenResult)) {
+                return $this->removeCookies();
+            }
+        }
+        return false;
+    }
+
+    /**
+    * Generate the token value
+    *
+    * @return string Token hash
+    */
+    public function generateToken(): string
     {
         $factory = new \RandomLib\Factory;
         $generator = $factory->getMediumStrengthGenerator();
@@ -246,21 +273,35 @@ class RememberMe
     }
 
     /**
-     * Set the cookies with the main and auth tokens
-     *
-     * @param \Psecio\Gatekeeper\AuthTokenModel $tokenModel Auth token model instance
-     * @param string $token Token hash
-     * @param boolean $https Enable/disable HTTPS setting on cookies [optional]
-     * @param string $domain Domain value to set cookies on
-     */
-    public function setCookies(\Psecio\Gatekeeper\AuthTokenModel $tokenModel, $token, $https = false, $domain = null)
+    * Set the cookies with the main and auth tokens
+    *
+    * @param \Psecio\Gatekeeper\AuthTokenModel $tokenModel Auth token model instance
+    * @param string $token Token hash
+    * @param boolean $https Enable/disable HTTPS setting on cookies [optional]
+    * @param string $domain Domain value to set cookies on
+    */
+    public function setCookies(AuthTokenModel $tokenModel, string $token, ?bool $https = false, ?string $domain = null): bool
     {
         if ($domain === null && isset($_SERVER['HTTP_HOST'])) {
             $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
         }
 
         $tokenValue = $tokenModel->id.':'.hash('sha256', $token);
-        $expires = new \DateTime($this->expireInterval);
+        $expires = new DateTime($this->expireInterval);
         return setcookie($this->tokenName, $tokenValue, $expires->format('U'), '/', $domain, $https, true);
+    }
+
+    /**
+    * Remove the cookies with the main and auth tokens
+    *
+    * @param boolean $https Enable/disable HTTPS setting on cookies [optional]
+    * @param string $domain Domain value to set cookies on
+    */
+    public function removeCookies(?bool $https = false, ?string $domain = null): bool
+    {
+        if (!isset($domain) && isset($_SERVER['HTTP_HOST'])) {
+            $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
+        }
+        return setcookie($this->tokenName, '', time()-3600, '/', $domain, $https, true);
     }
 }

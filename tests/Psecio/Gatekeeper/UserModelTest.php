@@ -12,7 +12,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
     {
         $user = $this->getMockBuilder('\Psecio\Gatekeeper\UserModel')
             ->disableOriginalConstructor()
-            ->setMethods(array('grantPermissions', 'grantGroups'))
+            ->onlyMethods(array('grantPermissions', 'grantGroups'))
             ->getMock();
 
         return $user;
@@ -22,7 +22,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array($method))
+            ->onlyMethods(array($method))
             ->getMock();
 
         return $ds;

@@ -58,12 +58,12 @@ class PolicyModel extends \Psecio\Gatekeeper\Model\Mysql
         ),
     );
 
-    public function evaluate($data, $expression = null)
+    public function evaluate(mixed $data, ?string $expression = null)
     {
     	if ($this->id === null) {
     		throw new \InvalidArgumentException('Policy not loaded!');
     	}
-        $expression = ($expression === null) ? $this->expression : $expression;
+        $expression = ($expression ?? $this->expression) ?? "";
         if (!is_array($data)) {
             $data = array($data);
         }

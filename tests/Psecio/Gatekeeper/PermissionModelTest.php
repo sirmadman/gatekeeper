@@ -45,7 +45,7 @@ class PermissionModelTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('find', 'delete'))
+            ->onlyMethods(array('find', 'delete'))
             ->getMock();
 
         $perm = new PermissionModel($ds, array('id' => 1234));
@@ -63,7 +63,7 @@ class PermissionModelTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('find', 'delete'))
+            ->onlyMethods(array('find', 'delete'))
             ->getMock();
 
         $perm1 = new PermissionModel($ds, array('id' => 1234));

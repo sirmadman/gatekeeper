@@ -1,6 +1,6 @@
 <?php
-
 namespace Psecio\Gatekeeper\Handler;
+
 use Psecio\Gatekeeper\Gatekeeper as g;
 
 class Delete extends \Psecio\Gatekeeper\Handler
@@ -10,12 +10,12 @@ class Delete extends \Psecio\Gatekeeper\Handler
      *
      * @return boolean Success/failure of delete
      */
-	public function execute()
-	{
-		$args = $this->getArguments();
-		$name = $this->getName();
+    public function execute()
+    {
+        $args = $this->getArguments();
+        $name = $this->getName();
 
-        $model = g::buildModel('delete', $name, $args);
+        $model = g::buildModel($name, $args, 'delete');
         return $this->getDb()->delete($model);
 	}
 }

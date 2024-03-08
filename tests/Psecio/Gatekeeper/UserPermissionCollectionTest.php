@@ -36,6 +36,8 @@ class UserPermissionCollectionTest extends \Psecio\Gatekeeper\Base
         $model = new UserPermissionModel($ds);
 
         $data = array(1, 2, 3);
+        $permissions->getDb()->expects($this->exactly(count($data)))
+        ->method('save');
         $permissions->create($model, $data);
     }
 
@@ -58,6 +60,8 @@ class UserPermissionCollectionTest extends \Psecio\Gatekeeper\Base
             new PermissionModel($ds, array('id' => 2)),
             new PermissionModel($ds, array('id' => 3))
         );
+        $permissions->getDb()->expects($this->never())
+        ->method('save');
         $permissions->create($model, $data);
     }
 }

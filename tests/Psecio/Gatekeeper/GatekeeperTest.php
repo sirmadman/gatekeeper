@@ -21,7 +21,7 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Stub')
             ->disableOriginalConstructor()
-            ->setMethods(array('find', 'delete'))
+            ->onlyMethods(array('find', 'delete'))
             ->getMock();
 
         Gatekeeper::setDatasource($ds);
@@ -55,7 +55,7 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
     //     $throttle = new ThrottleModel($ds);
 
     //     $gk = $this->getMockBuilder('\Psecio\Gatekeeper\Gatekeeper')
-    //         ->setMethods(array('findThrottleByUserId'))
+    //         ->onlyMethods(array('findThrottleByUserId'))
     //         ->getMock();
 
     //     $config = array('name' => 'test');

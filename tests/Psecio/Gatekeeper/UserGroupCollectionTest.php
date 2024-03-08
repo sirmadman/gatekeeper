@@ -29,7 +29,7 @@ class UserGroupCollectionTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('save', 'fetch'))
+            ->onlyMethods(array('save', 'fetch'))
             ->getMock();
 
         $ds->method('save')->willReturn(true);
@@ -55,7 +55,7 @@ class UserGroupCollectionTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('save', 'fetch'))
+            ->onlyMethods(array('save', 'fetch'))
             ->getMock();
 
         $ds->method('save')->willReturn(true);

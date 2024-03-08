@@ -83,7 +83,7 @@ class GroupModelTest extends \Psecio\Gatekeeper\Base
         );
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('fetch'))
+            ->onlyMethods(array('fetch'))
             ->getMock();
 
         $ds->method('fetch')
@@ -101,7 +101,7 @@ class GroupModelTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('save'))
+            ->onlyMethods(array('save'))
             ->getMock();
 
         $ds->method('save')
@@ -136,7 +136,7 @@ class GroupModelTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Stub')
             ->disableOriginalConstructor()
-            ->setMethods(array('find', 'delete'))
+            ->onlyMethods(array('find', 'delete'))
             ->getMock();
 
         $group = new GroupModel($ds, array('id' => 1234));
@@ -153,7 +153,7 @@ class GroupModelTest extends \Psecio\Gatekeeper\Base
     {
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Stub')
             ->disableOriginalConstructor()
-            ->setMethods(array('find', 'delete'))
+            ->onlyMethods(array('find', 'delete'))
             ->getMock();
 
         $group1 = new GroupModel($ds, array('id' => 1234));

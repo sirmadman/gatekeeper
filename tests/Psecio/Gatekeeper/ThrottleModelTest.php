@@ -129,7 +129,7 @@ class ThrottleModelTest extends \Psecio\Gatekeeper\Base
 
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
             ->disableOriginalConstructor()
-            ->setMethods(array('fetch'))
+            ->onlyMethods(array('fetch'))
             ->getMock();
 
         $ds->method('fetch')

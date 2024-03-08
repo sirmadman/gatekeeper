@@ -1,34 +1,34 @@
 <?php
 
 namespace Psecio\Gatekeeper\Handler;
+
 use Psecio\Gatekeeper\Gatekeeper as g;
 
 class FindBy extends \Psecio\Gatekeeper\Handler
 {
-	/**
-	 * Execute the "find by *" handling - smart enough to know
-	 * 	if it's for one or multiple
-	 *
-	 * @return mixed Single model instance or collection on multiple
-	 */
-	public function execute()
-	{
-		$name = $this->getName();
-		$args = $this->getArguments();
-
-		return $this->handleFindBy($name, $args);
-	}
-
-
-	/**
-     * Handle the "findBy" calls for data
+    /**
+     * Execute the "find by *" handling - smart enough to know
+     * 	if it's for one or multiple
      *
-     * @param string $name Function name called
-     * @param array $args Arguments
-     * @throws \Exception\ModelNotFoundException If model type is not found
-     * @throws \Exception If Data could not be found
-     * @return object Model instance
+     * @return mixed Single model instance or collection on multiple
      */
+    public function execute()
+    {
+        $name = $this->getName();
+        $args = $this->getArguments();
+
+        return $this->handleFindBy($name, $args);
+    }
+
+    /**
+    * Handle the "findBy" calls for data
+    *
+    * @param string $name Function name called
+    * @param array $args Arguments
+    * @throws \Exception\ModelNotFoundException If model type is not found
+    * @throws \Exception If Data could not be found
+    * @return object Model instance
+    */
     public function handleFindBy($name, $args)
     {
         $action = 'find';
