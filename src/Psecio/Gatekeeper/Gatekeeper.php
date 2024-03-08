@@ -5,9 +5,6 @@ namespace Psecio\Gatekeeper;
 //use Psecio\Gatekeeper\Model\User;
 use PDO;
 use Dotenv\Dotenv;
-use Dotenv\Repository\Adapter\EnvConstAdapter;
-use Dotenv\Repository\Adapter\ServerConstAdapter;
-use Dotenv\Repository\RepositoryBuilder;
 use Monolog;
 use Psr\Log\LoggerInterface;
 use InvalidArgumentException;
@@ -248,11 +245,13 @@ class Gatekeeper
     protected static function loadDotEnv(string $envPath): bool|array
     {
         try {
-            $repository = RepositoryBuilder::createWithDefaultAdapters()
-            ->immutable()
-            ->make();
-            $env = (Dotenv::create($repository, $envPath))->load();
+            $env = ($dotenv = Dotenv::createImmutable($envPath))
+            ->load();
+            $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS']);
 
+            if (count($env) == 0) {
+                $env = $_ENV;
+            }
             $config = [
                 'username' => $env['DB_USER'],
                 'password' => $env['DB_PASS'],
