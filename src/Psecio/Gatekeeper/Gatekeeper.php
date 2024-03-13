@@ -570,7 +570,7 @@ class Gatekeeper
         $result = self::loadConfig($config);
         self::$datasource = self::buildDataSource($config, $result);
         $remember = new Session\RememberMe(self::$datasource, $_COOKIE);
-        return $remember->destroy();
+        return $remember->destroyToken();
     }
 
     /**
