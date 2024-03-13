@@ -248,6 +248,10 @@ class RememberMe
     */
     public function destroyToken(?string $token = null): bool
     {
+        if (!isset($this->data[$this->tokenName])) {
+            return false;
+        }
+
         $tokenModel = new AuthTokenModel($this->datasource);
         $tokenResult = $this->datasource->find($tokenModel, array('token' => $token));
 
