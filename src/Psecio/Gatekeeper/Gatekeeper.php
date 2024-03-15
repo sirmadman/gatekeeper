@@ -629,6 +629,6 @@ class Gatekeeper
         if (self::$datasource->save($user) === false) {
             return false;
         }
-        return $user;
+        return true;
     }
 }
