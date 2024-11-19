@@ -5,13 +5,14 @@ namespace Psecio\Gatekeeper\Session;
 use Psecio\Gatekeeper\Base;
 use Psecio\Gatekeeper\UserModel;
 use Psecio\Gatekeeper\AuthTokenModel;
+use Psecio\Gatekeeper\Session\RememberMe;
 
 class RememberMeTest extends Base
 {
-    private function buildRememberMe($ds, array $methods = array())
+    private function buildRememberMe($ds, array $methods = array()): RememberMe
     {
         $data = array('interval' => '+1 day');
-        $rm = $this->getMockBuilder('\Psecio\Gatekeeper\Session\RememberMe')
+        $rm = $this->getMockBuilder(RememberMe::class)
         ->setConstructorArgs(array($ds, $data))
         ->onlyMethods($methods)
         ->getMock();
@@ -22,7 +23,7 @@ class RememberMeTest extends Base
     /**
     * Test the initialization of a full object with optional user
     */
-    public function testInitFullObject()
+    public function testInitFullObject(): void
     {
         $return = true;
         $ds = $this->buildMock($return);
@@ -41,14 +42,14 @@ class RememberMeTest extends Base
     * Test the valid setup of the "remember me" handling for the
     *  given user (does not set cookies)
     */
-    public function testSetupUserRememberValid()
+    public function testSetupUserRememberValid(): void
     {
         $ds = $this->buildMock(true);
         $data = array('interval' => '+1 day');
         $user = new UserModel($ds, array('id' => 1234));
         $token = new AuthTokenModel($ds);
 
-        $rm = $this->getMockBuilder('\Psecio\Gatekeeper\Session\RememberMe')
+        $rm = $this->getMockBuilder(RememberMe::class)
         ->setConstructorArgs(array($ds, $data))
         ->onlyMethods(array('saveToken', 'getUserToken', 'setCookies'))
         ->getMock();
@@ -64,7 +65,7 @@ class RememberMeTest extends Base
     * Test the setup of "remember me" for a user where the auth
     *  token has expired
     */
-    public function testSetupUserRememberExpired()
+    public function testSetupUserRememberExpired(): void
     {
         $ds = $this->buildMock(true);
         $rm = $this->buildRememberMe(
@@ -86,7 +87,7 @@ class RememberMeTest extends Base
     /**
     * Test when there's a save error on creating the new remember me auth token
     */
-    public function testSetupUserRememberNoSave()
+    public function testSetupUserRememberNoSave(): void
     {
         $ds = $this->buildMock(true);
         $rm = $this->buildRememberMe(
@@ -106,7 +107,7 @@ class RememberMeTest extends Base
     /**
     * Test the setup of "remember me" for a user logging out
     */
-    public function testSetupUserRememberLogout()
+    public function testSetupUserRememberLogout(): void
     {
         $ds = $this->buildMock(true);
         $rm = $this->buildRememberMe(
@@ -128,7 +129,7 @@ class RememberMeTest extends Base
     /**
     * Find a token instance using the token string value
     */
-    public function testGetTokenByTokenValue()
+    public function testGetTokenByTokenValue(): void
     {
         $tokenString = md5('test1234');
         $token = new AuthTokenModel($this->buildMock(true), array(
@@ -144,7 +145,7 @@ class RememberMeTest extends Base
     /**
     * Find a token instance using the token string value
     */
-    public function testGetTokenByTokenId()
+    public function testGetTokenByTokenId(): void
     {
         $tokenId = 1234;
         $token = new AuthTokenModel($this->buildMock(true), array(
@@ -160,7 +161,7 @@ class RememberMeTest extends Base
     /**
     * Test locating a token by the given user object
     */
-    public function testGetTokenByUser()
+    public function testGetTokenByUser(): void
     {
         $user = new UserModel($this->buildMock(true), array('id' => 1234));
         $token = new AuthTokenModel($this->buildMock(true), array(
@@ -179,7 +180,7 @@ class RememberMeTest extends Base
     * Test the saving of a token value, that it returns a token instance
     *  on success
     */
-    public function testSaveTokenValue()
+    public function testSaveTokenValue(): void
     {
         $tokenString = 1234;
         $user = new UserModel($this->buildMock(true), array('id' => 1234));

@@ -2,7 +2,12 @@
 
 namespace Psecio\Gatekeeper;
 
-class GatekeeperTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\DataSource\Stub;
+use Psecio\Gatekeeper\Restrict\Ip;
+use InvalidArgumentException;
+
+class GatekeeperTest extends Base
 {
     public function setUp(): void
     {
@@ -19,7 +24,7 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
      */
     public function testGetSetDatasource()
     {
-        $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Stub')
+        $ds = $this->getMockBuilder(Stub::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('find', 'delete'))
             ->getMock();
@@ -76,7 +81,7 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
         Gatekeeper::restrict('ip', array());
         $restrict = Gatekeeper::getRestrictions();
         $this->assertCount(1, $restrict);
-        $this->assertTrue($restrict[0] instanceof \Psecio\Gatekeeper\Restrict\Ip);
+        $this->assertTrue($restrict[0] instanceof Ip);
     }
 
     /**
@@ -86,7 +91,7 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
      */
     public function testCreateInvalidRestriction()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Gatekeeper::restrict('foobar', array());
     }
 
@@ -95,8 +100,8 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
      */
     public function testHashEqualsValid()
     {
-        $hash = sha1(mt_rand());
-        $this->assertTrue(Gatekeeper::hash_equals($hash, $hash));
+        $hash = hash('sha256', mt_rand());
+        $this->assertTrue(hash_equals($hash, $hash));
     }
 
     /**
@@ -105,6 +110,6 @@ class GatekeeperTest extends \Psecio\Gatekeeper\Base
     public function testHashEqualsDifferentLength()
     {
         $hash = sha1(mt_rand());
-        $this->assertFalse(Gatekeeper::hash_equals($hash, md5(mt_rand())));
+        $this->assertFalse(hash_equals($hash, md5(mt_rand())));
     }
 }

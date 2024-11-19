@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class DataNotFoundException extends \Exception
-{
+use Exception;
 
+class DataNotFoundException extends Exception
+{
 }

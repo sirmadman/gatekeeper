@@ -2,6 +2,11 @@
 
 namespace Psecio\Gatekeeper;
 
+use Psecio\Gatekeeper\Model\Mysql;
+use Psecio\Gatekeeper\GroupCollection;
+use Psecio\Gatekeeper\UserCollection;
+use Psecio\Gatekeeper\PermissionCollection;
+
 /**
  * Permission class
  *
@@ -11,19 +16,19 @@ namespace Psecio\Gatekeeper;
  * @property string $created
  * @property string $updated
  */
-class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
+class PermissionModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'permissions';
+    protected string $tableName = 'permissions';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'name' => array(
             'description' => 'Group Name',
             'column' => 'name',
@@ -58,7 +63,7 @@ class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Groups the permission belongs to',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\GroupCollection',
+                'model' => GroupCollection::class,
                 'method' => 'findGroupsByPermissionId',
                 'local' => 'id'
             )
@@ -67,7 +72,7 @@ class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Users that have the permission',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\UserCollection',
+                'model' => UserCollection::class,
                 'method' => 'findUsersByPermissionId',
                 'local' => 'id'
             )
@@ -76,7 +81,7 @@ class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Child Permissions',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\PermissionCollection',
+                'model' => PermissionCollection::class,
                 'method' => 'findChildrenByPermissionId',
                 'local' => 'id'
             )
@@ -87,9 +92,10 @@ class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
      * Add a permission as a child of the current instance
      *
      * @param integer|PermissionModel $permission Either permission ID or model instance
+     *
      * @return boolean Result of save operation
      */
-    public function addChild($permission)
+    public function addChild($permission): bool
     {
         if ($this->id === null) {
             return false;
@@ -108,9 +114,10 @@ class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
      * Remove a permission as a child of this instance
      *
      * @param integer|PermissionModel $permission Either permission ID or model instance
+     *
      * @return boolean Resultk of delete operation
      */
-    public function removeChild($permission)
+    public function removeChild($permission): bool
     {
         if ($this->id === null) {
             return false;
@@ -132,7 +139,7 @@ class PermissionModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean Expired/not expired
      */
-    public function isExpired()
+    public function isExpired(): bool
     {
         return ($this->expire !== null && $this->expire <= time());
     }

@@ -8,7 +8,7 @@ abstract class Restriction
      * Restriction configuration
      * @var array
      */
-    private $config = array();
+    private array $config = array();
 
     /**
      * Init the object and set the configuration
@@ -24,8 +24,10 @@ abstract class Restriction
      * Set the configuration property
      *
      * @param array $config Configuration settings
+     *
+     * @return void
      */
-    public function setConfig(array $config)
+    public function setConfig(array $config): void
     {
         $this->config = $config;
     }
@@ -35,7 +37,7 @@ abstract class Restriction
      *
      * @return array Configuration settings
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config;
     }
@@ -45,5 +47,5 @@ abstract class Restriction
      *
      * @return boolean Pass/fail of restriction
      */
-    abstract public function evaluate();
+    abstract public function evaluate(): bool;
 }

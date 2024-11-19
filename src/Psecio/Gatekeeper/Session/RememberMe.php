@@ -2,9 +2,11 @@
 
 namespace Psecio\Gatekeeper\Session;
 
+use Psecio\Gatekeeper\Gatekeeper;
 use Psecio\Gatekeeper\DataSource;
 use Psecio\Gatekeeper\UserModel;
 use Psecio\Gatekeeper\AuthTokenModel;
+use RandomLib\Factory;
 use DateTime;
 
 class RememberMe
@@ -46,7 +48,7 @@ class RememberMe
     * @param array $data Data to use in evaluation
     * @param \Psecio\Gatekeeper\UserModel|null $user User model instance [optional]
     */
-    public function __construct(DataSource $datasource, array $data, UserModel $user = null)
+    public function __construct(DataSource $datasource, array $data, ?UserModel $user = null)
     {
         $this->datasource = $datasource;
 
@@ -91,7 +93,7 @@ class RememberMe
     * @param \Psecio\Gatekeeper\UserModel|null $user User model instance [optional]
     * @return boolean Success/fail of setting up the session/cookies
     */
-    public function setup(UserModel $user = null): bool
+    public function setup(?UserModel $user = null): bool
     {
         $user = ($user === null) ? $this->user : $user;
         $userToken = $this->getUserToken($user);
@@ -116,7 +118,7 @@ class RememberMe
     * @param \Psecio\Gatekeeper\AuthTokenModel $token Token model instance
     * @return boolean Pass/fail result of the validation
     */
-    public function verify(AuthTokenModel $token = null): bool|UserModel
+    public function verify(?AuthTokenModel $token = null): bool|UserModel
     {
         if (!isset($this->data[$this->tokenName])) {
             return false;
@@ -137,7 +139,7 @@ class RememberMe
         // Remove the token (a new one will be made later)
         $this->datasource->delete($token);
 
-        if (\Psecio\Gatekeeper\Gatekeeper::hash_equals($this->data[$this->tokenName], $token->id.':'.hash('sha256', $userToken)) === false) {
+        if (hash_equals($this->data[$this->tokenName], $token->id . ':' . hash('sha256', $userToken)) === false) {
             return false;
         }
 
@@ -149,11 +151,12 @@ class RememberMe
     * Get the token information searching on given token string
     *
     * @param string $tokenValue Token string for search
+    *
     * @return boolean|\Psecio\Gatekeeper\AuthTokenModel Instance if no query errors
     */
-    public function getByToken($tokenValue): bool|AuthTokenModel
+    public function getByToken(string $tokenValue): AuthTokenModel
     {
-        $token = new \Psecio\Gatekeeper\AuthTokenModel($this->datasource);
+        $token = new AuthTokenModel($this->datasource);
         $result = $this->datasource->find($token, array('token' => $tokenValue));
         return $result;
     }
@@ -270,7 +273,7 @@ class RememberMe
     */
     public function generateToken(): string
     {
-        $factory = new \RandomLib\Factory;
+        $factory = new Factory();
         $generator = $factory->getMediumStrengthGenerator();
 
         return base64_encode($generator->generate(24));
@@ -284,13 +287,17 @@ class RememberMe
     * @param boolean $https Enable/disable HTTPS setting on cookies [optional]
     * @param string $domain Domain value to set cookies on
     */
-    public function setCookies(AuthTokenModel $tokenModel, string $token, ?bool $https = false, ?string $domain = null): bool
-    {
+    public function setCookies(
+        AuthTokenModel $tokenModel,
+        string $token,
+        ?bool $https = false,
+        ?string $domain = null
+    ): bool {
         if ($domain === null && isset($_SERVER['HTTP_HOST'])) {
             $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
         }
 
-        $tokenValue = $tokenModel->id.':'.hash('sha256', $token);
+        $tokenValue = $tokenModel->id . ':' . hash('sha256', $token);
         $expires = new DateTime($this->expireInterval);
         return setcookie($this->tokenName, $tokenValue, $expires->format('U'), '/', $domain, $https, true);
     }
@@ -306,6 +313,6 @@ class RememberMe
         if (!isset($domain) && isset($_SERVER['HTTP_HOST'])) {
             $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
         }
-        return setcookie($this->tokenName, '', time()-3600, '/', $domain, $https, true);
+        return setcookie($this->tokenName, '', time() - 3600, '/', $domain, $https, true);
     }
 }

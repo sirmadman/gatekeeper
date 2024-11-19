@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class PolicyNotFoundException extends \Exception
-{
+use Exception;
 
+class PolicyNotFoundException extends Exception
+{
 }

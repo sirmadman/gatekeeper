@@ -2,19 +2,21 @@
 
 namespace Psecio\Gatekeeper;
 
-class GroupPermissionModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+
+class GroupPermissionModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'group_permission';
+    protected string $tableName = 'group_permission';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'groupId' => array(
             'description' => 'Group Id',
             'column' => 'group_id',

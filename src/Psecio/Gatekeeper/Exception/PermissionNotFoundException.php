@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class PermissionNotFoundException extends \Exception
-{
+use Exception;
 
+class PermissionNotFoundException extends Exception
+{
 }

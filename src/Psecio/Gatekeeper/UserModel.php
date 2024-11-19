@@ -2,6 +2,21 @@
 
 namespace Psecio\Gatekeeper;
 
+use Psecio\Gatekeeper\Model\Mysql;
+use Psecio\Gatekeeper\UserGroupModel;
+use Psecio\Gatekeeper\PermissionModel;
+use Psecio\Gatekeeper\GroupModel;
+use Psecio\Gatekeeper\UserGroupCollection;
+use Psecio\Gatekeeper\UserPermissionCollection;
+use Psecio\Gatekeeper\UserModel;
+use Psecio\Gatekeeper\ThrottleModel;
+use Psecio\Gatekeeper\SecurityQuestionCollection;
+use Psecio\Gatekeeper\AuthTokenCollection;
+use Psecio\Gatekeeper\Exception\PasswordResetInvalid;
+use Psecio\Gatekeeper\Exception\PasswordResetTimeout;
+use InvalidArgumentException;
+use DateTime;
+
 /**
  * User class
  *
@@ -10,6 +25,8 @@ namespace Psecio\Gatekeeper;
  * @property string $email
  * @property string $firstName
  * @property string $lastName
+ * @property string $phone
+ * @property string $mobile
  * @property string $created
  * @property string $updated
  * @property string $status
@@ -18,22 +35,22 @@ namespace Psecio\Gatekeeper;
  * @property string $resetCodeTimeout
  * @property string $lastLogin
  */
-class UserModel extends \Psecio\Gatekeeper\Model\Mysql
+class UserModel extends Mysql
 {
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
 
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'users';
+    protected string $tableName = 'users';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'username' => array(
             'description' => 'Username',
             'column' => 'username',
@@ -108,7 +125,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Groups the User Belongs to',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\UserGroupCollection',
+                'model' => UserGroupCollection::class,
                 'method' => 'findByUserId',
                 'local' => 'id'
             )
@@ -117,7 +134,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Permissions the user has',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\UserPermissionCollection',
+                'model' => UserPermissionCollection::class,
                 'method' => 'findByUserId',
                 'local' => 'id'
             )
@@ -126,7 +143,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Number of login attempts by user',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\UserModel',
+                'model' => UserModel::class,
                 'method' => 'findAttemptsByUser',
                 'local' => 'id',
                 'return' => 'value'
@@ -136,7 +153,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Full throttle information for a user',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\ThrottleModel',
+                'model' => ThrottleModel::class,
                 'method' => 'findByUserId',
                 'local' => 'id'
             )
@@ -145,7 +162,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Security questions for the user',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\SecurityQuestionCollection',
+                'model' => SecurityQuestionCollection::class,
                 'method' => 'findByUserId',
                 'local' => 'id'
             )
@@ -154,7 +171,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Current auth (remember me) tokens for the user',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\AuthTokenCollection',
+                'model' => AuthTokenCollection::class,
                 'method' => 'findTokensByUserId',
                 'local' => 'id'
             )
@@ -165,9 +182,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Check to see if the password needs to be rehashed
      *
      * @param string $value Password string
+     *
      * @return string Updated string value
      */
-    public function prePassword($value)
+    public function prePassword(string $value): string
     {
         if (password_needs_rehash($value, PASSWORD_DEFAULT) === true) {
             $value = password_hash($value, PASSWORD_DEFAULT);
@@ -180,12 +198,14 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *     If found, user is automatically loaded into model instance
      *
      * @param string $username Username
-     * @return boolean Success/fail of find operation
+     *
+     * @return object Either a collection or model instance
      */
-    public function findByUsername($username)
+    public function findByUsername(string $username): object|bool
     {
         return $this->getDb()->find(
-            $this, array('username' => $username)
+            $this,
+            array('username' => $username)
         );
     }
 
@@ -193,22 +213,26 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Find a user by their given ID
      *
      * @param integer $userId User ID
-     * @return boolean Success/fail of find operation
+     *
+     * @return object Either a collection or model instance
      */
-    public function findByUserId($userId)
+    public function findByUserId(int $userId): object|bool
     {
         return $this->getDb()->find(
-            $this, array('id' => $userId)
+            $this,
+            array('id' => $userId)
         );
     }
 
     /**
      * Attach a permission to a user account
      *
-     * @param integer|PermissionModel $perm Permission ID or model isntance
+     * @param integer|PermissionModel $perm Permission ID or model instance
      * @param integer $expire Expiration time of the permission relationship
+     *
+     * @return boolean
      */
-    public function addPermission($perm, $expire = null)
+    public function addPermission(int|PermissionModel $perm, ?int $expire = null): bool
     {
         if ($perm instanceof PermissionModel) {
             $perm = $perm->id;
@@ -228,9 +252,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Revoke a user permission
      *
      * @param integer|PermissionModel $perm Permission ID or model instance
+     *
      * @return boolean Success/fail of delete
      */
-    public function revokePermission($perm)
+    public function revokePermission(int|PermissionModel $perm): bool
     {
         if ($perm instanceof PermissionModel) {
             $perm = $perm->id;
@@ -246,9 +271,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Add a group to the user
      *
      * @param integer|GroupModel $group Add the user to a group
+     *
      * @return boolean Success/fail of add
      */
-    public function addGroup($group, $expire = null)
+    public function addGroup(int|GroupModel $group, $expire = null): bool
     {
         if ($group instanceof GroupModel) {
             $group = $group->id;
@@ -268,9 +294,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Revoke access to a group for a user
      *
      * @param integer|GroupModel $group ID or model of group to remove
+     *
      * @return boolean
      */
-    public function revokeGroup($group)
+    public function revokeGroup(int|GroupModel $group): bool
     {
         if ($group instanceof GroupModel) {
             $group = $group->id;
@@ -287,7 +314,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean Success/fail of activation
      */
-    public function activate()
+    public function activate(): bool
     {
         // Verify we have a user
         if ($this->id === null) {
@@ -302,7 +329,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean Success/fail of deactivation
      */
-    public function deactivate()
+    public function deactivate(): bool
     {
         // Verify we have a user
         if ($this->id === null) {
@@ -317,9 +344,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *     Also updates the user record
      *
      * @param integer $length Length of returned string
-     * @return string Geenrated code
+     *
+     * @return bool|string Genrated code
      */
-    public function getResetPasswordCode($length = 80)
+    public function getResetPasswordCode(int $length = 80): bool|string
     {
         // Verify we have a user
         if ($this->id === null) {
@@ -338,27 +366,28 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Check the given code against he value in the database
      *
      * @param string $resetCode Reset code to verify
+     *
      * @return boolean Pass/fail of verification
      */
-    public function checkResetPasswordCode($resetCode)
+    public function checkResetPasswordCode(string $resetCode): bool
     {
         // Verify we have a user
         if ($this->id === null) {
             return false;
         }
         if ($this->resetCode === null) {
-            throw new Exception\PasswordResetInvalid('No reset code defined for user '.$this->username);
+            throw new PasswordResetInvalid('No reset code defined for user ' . $this->username);
         }
 
         // Verify the timeout
-        $timeout = new \DateTime($this->resetCodeTimeout);
-        if ($timeout <= new \DateTime()) {
+        $timeout = new DateTime($this->resetCodeTimeout);
+        if ($timeout <= new DateTime()) {
             $this->clearPasswordResetCode();
-            throw new Exception\PasswordResetTimeout('Reset code has timeed out!');
+            throw new PasswordResetTimeout('Reset code has timeed out!');
         }
 
         // We made it this far, compare the hashes
-        $result = (Gatekeeper::hash_equals($this->resetCode, $resetCode));
+        $result = (hash_equals($this->resetCode, $resetCode));
         if ($result === true) {
             $this->clearPasswordResetCode();
         }
@@ -367,9 +396,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
 
     /**
      * Clear all data from the passsword reset code handling
-     * @return [type] [description]
+     *
+     * @return boolean [type] [description]
      */
-    public function clearPasswordResetCode()
+    public function clearPasswordResetCode(): bool
     {
         // Verify we have a user
         if ($this->id === null) {
@@ -383,10 +413,11 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
     /**
      * Check to see if the user is in the group
      *
-     * @param integer $groupId Group ID or name
+     * @param integer|string $groupId Group ID or name
+     *
      * @return boolean Found/not found in the group
      */
-    public function inGroup($groupId)
+    public function inGroup(int|string $groupId): bool
     {
         $find = ['user_id' => $this->id];
         if (!is_numeric($groupId)) {
@@ -406,10 +437,11 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
     /**
      * Check to see if a user has a permission
      *
-     * @param integer $permId Permission ID or name
+     * @param integer|string $permId Permission ID or name
+     *
      * @return boolean Found/not found in user permission set
      */
-    public function hasPermission($permId)
+    public function hasPermission(int|string $permId): bool
     {
         $find = ['user_id' => $this->id];
         if (!is_numeric($permId)) {
@@ -428,7 +460,7 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean User is/is not banned
      */
-    public function isBanned()
+    public function isBanned(): bool
     {
         $throttle = new ThrottleModel($this->getDb());
         $throttle = $this->getDb()->find($throttle, array('user_id' => $this->id));
@@ -440,11 +472,12 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Find the number of login attempts for a user
      *
      * @param integer $userId User ID [optional]
+     *
      * @return integer Number of login attempts
      */
-    public function findAttemptsByUser($userId = null)
+    public function findAttemptsByUser(?int $userId = null): int
     {
-        $userId = ($userId === null) ? $this->id : $userId;
+        $userId = $userId ?? $this->id;
 
         $throttle = new ThrottleModel($this->getDb());
         $throttle = $this->getDb()->find($throttle, array('user_id' => $userId));
@@ -457,8 +490,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @param array $config Configuration settings (permissions & groups)
      * @param integer $expire Expiration time for the settings
+     *
+     * @return bool Success/fail of grant
      */
-    public function grant(array $config, $expire = null)
+    public function grant(array $config, ?int $expire = null): bool
     {
         $return = true;
         if (isset($config['permissions'])) {
@@ -481,9 +516,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @param array $permissions Set of permissions (either IDs or objects)
      * @param integer $expire EXpiration (unix timestamp) for the permissions
+     *
      * @return boolean Success/fail of all saves
      */
-    public function grantPermissions(array $permissions, $expire = null)
+    public function grantPermissions(array $permissions, ?int $expire = null): bool
     {
         $return = true;
         foreach ($permissions as $permission) {
@@ -509,9 +545,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @param array $groups Set of groups (either IDs or objects)
      * @param integer $expire EXpiration (unix timestamp) for the permissions
+     *
      * @return boolean Success/fail of all saves
      */
-    public function grantGroups(array $groups, $expire = null)
+    public function grantGroups(array $groups, ?int $expire = null): bool
     {
         $return = true;
         foreach ($groups as $group) {
@@ -536,17 +573,18 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Add a new security question to the current user
      *
      * @param array $data Security question data
+     *
      * @return boolean Result of save operation
      */
-    public function addSecurityQuestion(array $data)
+    public function addSecurityQuestion(array $data): bool
     {
         if (!isset($data['question']) || !isset($data['answer'])) {
-            throw new \InvalidArgumentException('Invalid question/answer data provided.');
+            throw new InvalidArgumentException('Invalid question/answer data provided.');
         }
 
         // Ensure that the answer isn't the same as the user's password
-        if (password_verify($data['answer'], $this->password) === true) {
-            throw new \InvalidArgumentException('Security question answer cannot be the same as password.');
+        if (password_verify($data['answer'], $this->password ?? '') === true) {
+            throw new InvalidArgumentException('Security question answer cannot be the same as password.');
         }
 
         $question = new SecurityQuestionModel($this->getDb(), array(
@@ -561,9 +599,10 @@ class UserModel extends \Psecio\Gatekeeper\Model\Mysql
      * Update the last login time for the current user
      *
      * @param integer $time Unix timestamp [optional]
+     *
      * @return boolean Success/fail of update
      */
-    public function updateLastLogin($time = null)
+    public function updateLastLogin(?int $time = null): bool
     {
         $time = ($time !== null) ? $time : time();
         $this->lastLogin = date('Y-m-d H:i:s', $time);

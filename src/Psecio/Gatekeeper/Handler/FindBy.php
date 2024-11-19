@@ -2,17 +2,20 @@
 
 namespace Psecio\Gatekeeper\Handler;
 
+use Psecio\Gatekeeper\Handler;
 use Psecio\Gatekeeper\Gatekeeper as g;
+use Psecio\Gatekeeper\Collection;
+use Psecio\Gatekeeper\Exception\ModelNotFoundException;
 
-class FindBy extends \Psecio\Gatekeeper\Handler
+class FindBy extends Handler
 {
     /**
      * Execute the "find by *" handling - smart enough to know
-     * 	if it's for one or multiple
+     *  if it's for one or multiple
      *
      * @return mixed Single model instance or collection on multiple
      */
-    public function execute()
+    public function execute(): mixed
     {
         $name = $this->getName();
         $args = $this->getArguments();
@@ -25,11 +28,12 @@ class FindBy extends \Psecio\Gatekeeper\Handler
     *
     * @param string $name Function name called
     * @param array $args Arguments
+    *
     * @throws \Exception\ModelNotFoundException If model type is not found
     * @throws \Exception If Data could not be found
     * @return object Model instance
     */
-    public function handleFindBy($name, $args)
+    public function handleFindBy(string $name, array $args): object
     {
         $action = 'find';
         $name = str_replace($action, '', $name);
@@ -50,17 +54,18 @@ class FindBy extends \Psecio\Gatekeeper\Handler
      * @param string $name Name of function called
      * @param array $args Arguments list
      * @param array $matches Matches from regex
+     *
      * @return \Modler\Collection collection
      */
-    public function handleFindBySingle($name, $args, $matches)
+    public function handleFindBySingle(string $name, array $args, array $matches): Collection
     {
         $property = lcfirst($matches[1]);
         $model = str_replace($matches[0], '', $name);
         $data = array($property => $args[0]);
 
-        $modelNs = '\\Psecio\\Gatekeeper\\'.$model.'Model';
+        $modelNs = '\\Psecio\\Gatekeeper\\' . $model . 'Model';
         if (!class_exists($modelNs)) {
-            throw new \Psecio\Gatekepper\Exception\ModelNotFoundException('Model type '.$model.' could not be found');
+            throw new ModelNotFoundException('Model type ' . $model . ' could not be found');
         }
         $instance = new $modelNs($this->getDb());
         $instance = $this->getDb()->find($instance, $data);
@@ -78,17 +83,18 @@ class FindBy extends \Psecio\Gatekeeper\Handler
      * @param string $name Name of function called
      * @param array $args Arguments list
      * @param array $matches Matches from regex
+     *
      * @return \Modler\Collection collection
      */
-    public function handleFindByMultiple($name, $args, $matches)
+    public function handleFindByMultiple(string $name, array $args, array $matches): Collection
     {
         $data = (isset($args[0])) ? $args[0] : array();
         $model = substr($name, 0, strlen($name) - 1);
-        $collectionNs = '\\Psecio\\Gatekeeper\\'.$model.'Collection';
+        $collectionNs = '\\Psecio\\Gatekeeper\\' . $model . 'Collection';
         if (!class_exists($collectionNs)) {
-            throw new \Psecio\Gatekeeper\Exception\ModelNotFoundException('Collection type '.$model.' could not be found');
+            throw new ModelNotFoundException('Collection type ' . $model . ' could not be found');
         }
-        $model = g::modelFactory($model.'Model');
+        $model = g::modelFactory($model . 'Model');
         $collection = new $collectionNs($this->getDb());
         $collection = $this->getDb()->find($model, $data, true);
 

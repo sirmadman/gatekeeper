@@ -2,9 +2,14 @@
 
 namespace Psecio\Gatekeeper;
 
-class PolicyModelTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\PolicyModel;
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\DataSource\Stub;
+use Psecio\Gatekeeper\Exception\InvalidExpressionException;
+
+class PolicyModelTest extends Base
 {
-    private $policy;
+    private PolicyModel $policy;
 
     public function setUp(): void
     {
@@ -20,7 +25,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
      * Test that the evaluation passes for a single object
      *  with the type defined (array index)
      */
-    public function testPolicyEvaluateSingleObject()
+    public function testPolicyEvaluateSingleObject(): void
     {
         $this->policy->load(['expression' => 'user.test == "foo"']);
 
@@ -34,7 +39,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
      * Test that the evaluation passes with multiple objects
      *  with types defined (array index)
      */
-    public function testPolicyEvaluateMultipleObject()
+    public function testPolicyEvaluateMultipleObject(): void
     {
         $this->policy->load([
             'expression' => 'user.test == "foo" and group.name == "test"'
@@ -51,7 +56,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
      * Test that the resolution of type by classname works
      *  in expression evaluation
      */
-    public function testPolicyEvaluateObjectByClassname()
+    public function testPolicyEvaluateObjectByClassname(): void
     {
         $ds = $this->buildMock(true);
         $user = new UserModel($ds, ['username' => 'ccornutt']);
@@ -71,7 +76,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
      */
     public function testInvalidExpressionFailure()
     {
-        $this->expectException(\Psecio\Gatekeeper\Exception\InvalidExpressionException::class);
+        $this->expectException(InvalidExpressionException::class);
         $this->policy->load([
             'expression' => 'user.username == "ccornutt"'
         ]);
@@ -90,7 +95,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
         $ds = $this->buildMock(true);
         $policy = new PolicyModel($ds);
 
-        $this->expectException(\Psecio\Gatekeeper\Exception\InvalidExpressionException::class);
+        $this->expectException(InvalidExpressionException::class);
         $this->policy->evaluate([]);
     }
 
@@ -106,7 +111,7 @@ class PolicyModelTest extends \Psecio\Gatekeeper\Base
         $group = new GroupModel($ds, ['name' => 'group1']);
         $groups->add($group);
 
-        $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Stub')
+        $ds = $this->getMockBuilder(Stub::class)
             ->setConstructorArgs(array(array()))
             ->getMock();
         $ds->method('fetch')

@@ -2,19 +2,30 @@
 
 namespace Psecio\Gatekeeper;
 
-class PermissionParentModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+
+/**
+ * PermissionParent class
+ *
+ * @property string $id
+ * @property string $permissionId
+ * @property string $parentId
+ * @property string $created
+ * @property string $updated
+ */
+class PermissionParentModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'permission_parent';
+    protected string $tableName = 'permission_parent';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'id' => array(
             'description' => 'Record ID',
             'column' => 'id',

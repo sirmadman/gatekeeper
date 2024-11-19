@@ -5,6 +5,11 @@
     colors="true"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd"
     cacheDirectory=".phpunit.cache"
+    testdox="false"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerDeprecations="true"
     >
     <coverage/>
     <source>

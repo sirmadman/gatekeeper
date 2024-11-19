@@ -2,37 +2,52 @@
 
 namespace Psecio\Gatekeeper;
 
-class ThrottleModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+use DateTime;
+
+/**
+* Throttle class
+*
+* @property string $id
+* @property string $userid
+* @property string $attempts
+* @property string $status
+* @property string $lastAttempt
+* @property string $statusChange
+* @property string $created
+* @property string $updated
+*/
+class ThrottleModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'throttle';
+    protected string $tableName = 'throttle';
 
     /**
      * Status constants
      */
-    const STATUS_ALLOWED = 'allowed';
-    const STATUS_BLOCKED = 'blocked';
+    public const STATUS_ALLOWED = 'allowed';
+    public const STATUS_BLOCKED = 'blocked';
 
     /**
      * Default timeout time
      * @var string
      */
-    protected $timeout = '-1 minute';
+    protected string $timeout = '-1 minute';
 
     /**
      * Default number of attempts before blocking
      * @var integer
      */
-    protected $allowedAttemts = 5;
+    protected int $allowedAttemts = 5;
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'id' => array(
             'description' => 'Record ID',
             'column' => 'id',
@@ -79,12 +94,14 @@ class ThrottleModel extends \Psecio\Gatekeeper\Model\Mysql
      * Find the throttle information for the given user ID
      *
      * @param integer $userId User ID
-     * @return boolean Success/fail of find call
+     *
+     * @return object Either a collection or model instance
      */
-    public function findByUserId($userId)
+    public function findByUserId($userId): object
     {
         return $this->getDb()->find(
-            $this, array('user_id' => $userId)
+            $this,
+            array('user_id' => $userId)
         );
     }
 
@@ -93,7 +110,7 @@ class ThrottleModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean Success/fail of save operation
      */
-    public function updateAttempts()
+    public function updateAttempts(): bool
     {
         $this->lastAttempt = date('Y-m-d H:i:s');
         $this->attempts = $this->attempts + 1;
@@ -105,11 +122,11 @@ class ThrottleModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean Success/fail of save operation
      */
-    public function allow()
+    public function allow(): bool
     {
         $this->statusChange = date('Y-m-d H:i:s');
         $this->attempts = 0;
-        $this->status = ThrottleModel::STATUS_ALLOWED;
+        $this->status = self::STATUS_ALLOWED;
         return $this->getDb()->save($this);
     }
 
@@ -118,14 +135,15 @@ class ThrottleModel extends \Psecio\Gatekeeper\Model\Mysql
      * Check the timeout to see if it has passed
      *
      * @param string $timeout Alternative timeout string (ex: "-1 minute")
+     *
      * @return boolean True if user is reendabled, false if still disabled
      */
-    public function checkTimeout($timeout = null)
+    public function checkTimeout(?string $timeout = null): bool
     {
-        $timeout = ($timeout === null) ? $this->timeout : $timeout;
+        $timeout = $timeout ?? $this->timeout;
 
-        $lastChange = new \DateTime($this->statusChange);
-        $timeout = new \DateTime($timeout);
+        $lastChange = new DateTime($this->statusChange);
+        $timeout = new DateTime($timeout);
 
         if ($lastChange <= $timeout) {
             $this->allow();
@@ -139,10 +157,10 @@ class ThrottleModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean False if they were blocked, true otherwise
      */
-    public function checkAttempts()
+    public function checkAttempts(): bool
     {
         if ($this->attempts >= $this->allowedAttemts) {
-            $this->status = ThrottleModel::STATUS_BLOCKED;
+            $this->status = self::STATUS_BLOCKED;
             return $this->getDb()->save($this);
         }
         return true;

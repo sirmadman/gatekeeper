@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class ModelNotFoundException extends \Exception
-{
+use Exception;
 
+class ModelNotFoundException extends Exception
+{
 }

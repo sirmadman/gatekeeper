@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class GroupNotFoundException extends \Exception
-{
+use Exception;
 
+class GroupNotFoundException extends Exception
+{
 }

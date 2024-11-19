@@ -2,7 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
-class UserCollectionTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+
+class UserCollectionTest extends Base
 {
     /**
      * Test the location of users of a group by ID

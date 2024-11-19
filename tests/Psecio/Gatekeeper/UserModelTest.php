@@ -2,7 +2,14 @@
 
 namespace Psecio\Gatekeeper;
 
-class UserModelTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\UserModel;
+use Psecio\Gatekeeper\DataSource\Mysql;
+use Psecio\Gatekeeper\Exception\PasswordResetInvalid;
+use Psecio\Gatekeeper\Exception\PasswordResetTimeout;
+use InvalidArgumentException;
+
+class UserModelTest extends Base
 {
     private $permissions = array(1, 2, 3);
     private $groups = array(1, 2, 3);
@@ -10,7 +17,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
 
     private function buildPermissionGroupUserMock()
     {
-        $user = $this->getMockBuilder('\Psecio\Gatekeeper\UserModel')
+        $user = $this->getMockBuilder(UserModel::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('grantPermissions', 'grantGroups'))
             ->getMock();
@@ -20,7 +27,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
 
     private function buildMysqlDataSourceMock($method = 'save')
     {
-        $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
+        $ds = $this->getMockBuilder(Mysql::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array($method))
             ->getMock();
@@ -158,7 +165,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
         $ds = $this->buildMock(true, 'save');
         $user = new UserModel($ds, array('id' => 1234));
 
-        $this->expectException(\Psecio\Gatekeeper\Exception\PasswordResetInvalid::class);
+        $this->expectException(PasswordResetInvalid::class);
         $user->checkResetPasswordCode('code');
     }
 
@@ -175,7 +182,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
         $user->resetCode = $code;
         $user->resetCodeTimeout = date('Y/m/d H:i:s', strtotime('-1 day'));
 
-        $this->expectException(\Psecio\Gatekeeper\Exception\PasswordResetTimeout::class);
+        $this->expectException(PasswordResetTimeout::class);
         $user->checkResetPasswordCode($code);
     }
 
@@ -486,7 +493,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
         $ds = $this->buildMock(true, 'save');
 
         $user = new UserModel($ds);
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $result = $user->addSecurityQuestion(array());
     }
 
@@ -496,13 +503,13 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
      *
      * @expectedException \InvalidArgumentException
      */
-    public function testAddSecurityQuestionSameAsPassword()
+    public function testAddSecurityQuestionSameAsPassword(): void
     {
         $ds = $this->buildMock(true, 'save');
 
         $passwordHash = password_hash('mypass', PASSWORD_DEFAULT);
         $user = new UserModel($ds, array('password' => $passwordHash));
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $result = $user->addSecurityQuestion(array(
             'question' => 'Question #1',
             'answer' => 'mypass'
@@ -512,7 +519,7 @@ class UserModelTest extends \Psecio\Gatekeeper\Base
     /**
      * Test finding a user by ID
      */
-    public function testFindUserById()
+    public function testFindUserById(): void
     {
         $userId = 1234;
 

@@ -2,7 +2,11 @@
 
 namespace Psecio\Gatekeeper;
 
-class UserGroupCollectionTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\DataSource\Mysql;
+use Psecio\Gatekeeper\UserGroupCollection;
+
+class UserGroupCollectionTest extends Base
 {
     /**
      * Test the location of groups a member is a part of
@@ -27,7 +31,7 @@ class UserGroupCollectionTest extends \Psecio\Gatekeeper\Base
      */
     public function testCreateRecordsFromModelDataById()
     {
-        $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
+        $ds = $this->getMockBuilder(Mysql::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('save', 'fetch'))
             ->getMock();
@@ -53,7 +57,7 @@ class UserGroupCollectionTest extends \Psecio\Gatekeeper\Base
      */
     public function testCreateRecordsFromModelDataByName()
     {
-        $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
+        $ds = $this->getMockBuilder(Mysql::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('save', 'fetch'))
             ->getMock();

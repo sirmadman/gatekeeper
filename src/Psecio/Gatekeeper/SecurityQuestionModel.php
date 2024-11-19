@@ -2,19 +2,31 @@
 
 namespace Psecio\Gatekeeper;
 
-class SecurityQuestionModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+
+/**
+* SecurityQuestion class
+*
+* @property string $id
+* @property string $question
+* @property string $answer
+* @property string $userId
+* @property string $created
+* @property string $updated
+*/
+class SecurityQuestionModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'security_questions';
+    protected string $tableName = 'security_questions';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'id' => array(
             'description' => 'Question ID',
             'column' => 'id',
@@ -51,9 +63,10 @@ class SecurityQuestionModel extends \Psecio\Gatekeeper\Model\Mysql
      * Hash the answer
      *
      * @param string $value Answer to question
+     *
      * @return string Hashed answer
      */
-    public function preAnswer($value)
+    public function preAnswer(string $value): string
     {
         if (password_needs_rehash($value, PASSWORD_DEFAULT) === true) {
             $value = password_hash($value, PASSWORD_DEFAULT);
@@ -65,9 +78,10 @@ class SecurityQuestionModel extends \Psecio\Gatekeeper\Model\Mysql
      * Verify the answer to the question
      *
      * @param string $value Answer input from user
+     *
      * @return boolean Match/no match on answer
      */
-    public function verifyAnswer($value)
+    public function verifyAnswer(string $value): bool
     {
         if ($this->id === null) {
             return false;

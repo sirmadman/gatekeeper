@@ -2,32 +2,34 @@
 
 namespace Psecio\Gatekeeper\Collection;
 
-class Mysql extends \Modler\Collection
+use Modler\Collection;
+
+class Mysql extends Collection
 {
     /**
      * Current database object
      * @var object
      */
-    private $db;
+    private object $db;
 
     /**
      * Last database error
      * @var string
      */
-    private $lastError = '';
+    private string $lastError = '';
 
     /**
      * Current database table name
      * @var string
      */
-    protected $tableName;
+    protected string $tableName;
 
     /**
      * Init the collection and set up the database instance
      *
      * @param object $db Database instance
      */
-    public function __construct($db)
+    public function __construct(object $db)
     {
         $this->setDb($db);
     }
@@ -37,7 +39,7 @@ class Mysql extends \Modler\Collection
      *
      * @param object $db Database object
      */
-    public function setDb($db)
+    public function setDb(object $db)
     {
         $this->db = $db;
     }
@@ -47,7 +49,7 @@ class Mysql extends \Modler\Collection
      *
      * @return object Database instance
      */
-    public function getDb()
+    public function getDb(): object
     {
         return $this->db;
     }
@@ -57,17 +59,17 @@ class Mysql extends \Modler\Collection
      *
      * @return string Table name
      */
-    public function getTableName()
+    public function getTableName(): string
     {
         $dbConfig = $this->db->config;
         return (isset($dbConfig['prefix']))
-            ? $dbConfig['prefix'].'_'.$this->tableName : $this->tableName;
+            ? $dbConfig['prefix'] . '_' . $this->tableName : $this->tableName;
     }
 
-    public function getPrefix()
+    public function getPrefix(): string
     {
         $dbConfig = $this->db->config;
-        return (isset($dbConfig['prefix'])) ? $dbConfig['prefix'].'_' : '';
+        return (isset($dbConfig['prefix'])) ? $dbConfig['prefix'] . '_' : '';
     }
 
     /**
@@ -75,7 +77,7 @@ class Mysql extends \Modler\Collection
      *
      * @return string Error message
      */
-    public function getLastError()
+    public function getLastError(): string
     {
         return $this->lastError;
     }

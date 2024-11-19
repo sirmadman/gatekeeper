@@ -2,7 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
-class MockModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+
+class MockModel extends Mysql
 {
     protected $tableName = 'test';
 }

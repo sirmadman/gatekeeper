@@ -2,7 +2,11 @@
 
 namespace Psecio\Gatekeeper;
 
-class GroupCollectionTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\GroupCollection;
+use Psecio\Gatekeeper\GroupModel;
+
+class GroupCollectionTest extends Base
 {
     /**
      * Test the location and conversion of child groups into instances
@@ -19,7 +23,7 @@ class GroupCollectionTest extends \Psecio\Gatekeeper\Base
         $groups = new GroupCollection($ds);
 
         $groups->findChildrenByGroupId($groupId);
-        $this->assertCount(2, $groups);
+        $this->assertCount(2, $groups->toArray());
 
         $groups = $groups->toArray();
         $this->assertTrue($groups[0] instanceof GroupModel);

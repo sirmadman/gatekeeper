@@ -2,7 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
-class ThrottleModelTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+
+class ThrottleModelTest extends Base
 {
     /**
      * Test the update of the login attempt properties on a throttle record

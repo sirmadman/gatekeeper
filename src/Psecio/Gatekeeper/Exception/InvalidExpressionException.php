@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class InvalidExpressionException extends \Exception
-{
+use Exception;
 
+class InvalidExpressionException extends Exception
+{
 }

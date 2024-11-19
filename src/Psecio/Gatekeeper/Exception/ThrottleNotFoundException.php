@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class ThrottleNotFoundException extends \Exception
-{
+use Exception;
 
+class ThrottleNotFoundException extends Exception
+{
 }

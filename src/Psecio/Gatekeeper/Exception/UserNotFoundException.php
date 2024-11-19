@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class UserNotFoundException extends \Exception
-{
+use Exception;
 
+class UserNotFoundException extends Exception
+{
 }

@@ -2,10 +2,12 @@
 
 namespace Psecio\Gatekeeper\Provider;
 
+use Psecio\Gatekeeper\UserModel;
+use Psecio\Gatekeeper\Gatekeeper;
 use Illuminate\Auth\GenericUser;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
-use Psecio\Gatekeeper\Gatekeeper;
+use Exception;
 
 /**
  * This provider is for only Laravel 4.x based applications
@@ -32,9 +34,10 @@ class Laravel implements UserProviderInterface
      * Retrieve a user by their unique identifier.
      *
      * @param integer $identifier User ID
+     *
      * @return \Illuminate\Auth\UserInterface
      */
-    public function retrieveByID($identifier)
+    public function retrieveByID(int $identifier): UserInterface
     {
         $user = Gatekeeper::modelFactory('UserModel');
         $user->findById($identifier);
@@ -45,9 +48,10 @@ class Laravel implements UserProviderInterface
      * Retrieve a user by the given credentials.
      *
      * @param  array $credentials
+     *
      * @return \Illuminate\Auth\UserInterface
      */
-    public function retrieveByCredentials(array $credentials)
+    public function retrieveByCredentials(array $credentials): UserInterface
     {
         $user = Gatekeeper::modelFactory('UserModel');
         $result = $user->findByUsername($credentials['username']);
@@ -59,9 +63,10 @@ class Laravel implements UserProviderInterface
      *
      * @param  \Illuminate\Auth\UserInterface  $user
      * @param  array $credentials
+     *
      * @return bool
      */
-    public function validateCredentials(\Illuminate\Auth\UserInterface $user, array $credentials)
+    public function validateCredentials(UserInterface $user, array $credentials): bool
     {
         return Gatekeeper::authenticate($credentials);
     }
@@ -71,11 +76,13 @@ class Laravel implements UserProviderInterface
      *
      * @param string $identifier Identifier for token location
      * @param string $token      [description]
+     *
      * @throws \Exception Not implemented
+     * @return \Exception
      */
-    public function retrieveByToken($identifier, $token)
+    public function retrieveByToken(string $identifier, string $token): Exception
     {
-        return new \Exception('not implemented');
+        return new Exception('not implemented');
     }
 
     /**
@@ -83,11 +90,13 @@ class Laravel implements UserProviderInterface
      *
      * @param UserInterface $user User object
      * @param string $token Token string
+     *
      * @throws \Exception Not implemented
+     * @return \Exception
      */
-    public function updateRememberToken(UserInterface $user, $token)
+    public function updateRememberToken(UserInterface $user, $token): Exception
     {
-        return new \Exception('not implemented');
+        return new Exception('not implemented');
     }
 
     /**
@@ -96,13 +105,13 @@ class Laravel implements UserProviderInterface
      * @param \Psecio\Gatekeeper\UserModel $user User model instance
      * @return GenericUser instance
      */
-    protected function returnUser(\Psecio\Gatekeeper\UserModel $user)
+    protected function returnUser(UserModel $user): GenericUser
     {
         $attrs = array(
             'id' => $user->id,
             'username' => $user->username,
             'password' => $user->password,
-            'name' => $user->firstName.' '.$user->lastName,
+            'name' => $user->firstName . ' ' . $user->lastName,
             'email' => $user->email
         );
         return new GenericUser($attrs);

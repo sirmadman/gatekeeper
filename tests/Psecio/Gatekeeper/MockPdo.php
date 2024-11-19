@@ -2,7 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
-class MockPdo extends \PDO
+use PDO;
+
+class MockPdo extends PDO
 {
     public function __construct(){}
 }

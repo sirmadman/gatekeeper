@@ -2,6 +2,8 @@
 
 namespace Psecio\Gatekeeper;
 
+use Psecio\Gatekeeper\DataSource;
+
 abstract class Handler
 {
     /**
@@ -40,6 +42,8 @@ abstract class Handler
      * Set the current arguments
      *
      * @param array $arguments Method arguments
+     *
+     * @return void
      */
     public function setArguments(array $arguments): void
     {
@@ -60,6 +64,8 @@ abstract class Handler
      * Set method name called for handler
      *
      * @param string $name Method name called
+     *
+     * @return void
      */
     public function setName($name): void
     {
@@ -80,6 +86,8 @@ abstract class Handler
      * Set the current data source
      *
      * @param \Psecio\Gatekeeper\DataSource $datasource data source instance (DB)
+     *
+     * @return void
      */
     public function setDb(DataSource $datasource): void
     {

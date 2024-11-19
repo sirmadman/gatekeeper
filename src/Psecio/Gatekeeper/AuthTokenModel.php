@@ -2,19 +2,22 @@
 
 namespace Psecio\Gatekeeper;
 
-class AuthTokenModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+use Psecio\Gatekeeper\UserModel;
+
+class AuthTokenModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'auth_tokens';
+    protected string $tableName = 'auth_tokens';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'id' => array(
             'description' => 'Token ID',
             'column' => 'id',
@@ -39,7 +42,7 @@ class AuthTokenModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'User related to token',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\UserModel',
+                'model' => UserModel::class,
                 'method' => 'findByUserId',
                 'local' => 'userId'
             )

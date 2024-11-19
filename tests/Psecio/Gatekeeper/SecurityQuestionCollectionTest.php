@@ -2,7 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
-class SecurityQuestionCollectionTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+
+class SecurityQuestionCollectionTest extends Base
 {
     /**
      * Test the location of security questions of a user by ID

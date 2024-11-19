@@ -2,7 +2,10 @@
 
 namespace Psecio\Gatekeeper;
 
-class DataSourceTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\DataSource;
+
+class DataSourceTest extends Base
 {
     /**
      * Test the getter/setter for the data source configuration
@@ -10,7 +13,7 @@ class DataSourceTest extends \Psecio\Gatekeeper\Base
     public function testGetSetConfigFunction()
     {
         $config = array('test' => 'foo');
-        $ds = $this->getMockForAbstractClass('\Psecio\Gatekeeper\DataSource', array($config));
+        $ds = $this->getMockForAbstractClass(DataSource::class, array($config));
 
         $ds->setConfig($config);
         $this->assertEquals($ds->getConfig(), $config);
@@ -22,7 +25,7 @@ class DataSourceTest extends \Psecio\Gatekeeper\Base
     public function testGetSetConfigConstruct()
     {
         $config = array('test' => 'foo');
-        $ds = $this->getMockForAbstractClass('\Psecio\Gatekeeper\DataSource', array($config));
+        $ds = $this->getMockForAbstractClass(DataSource::class, array($config));
         $this->assertEquals($ds->getConfig(), $config);
     }
 }

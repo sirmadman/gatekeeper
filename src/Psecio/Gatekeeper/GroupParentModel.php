@@ -2,19 +2,21 @@
 
 namespace Psecio\Gatekeeper;
 
-class GroupParentModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+
+class GroupParentModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'group_parent';
+    protected string $tableName = 'group_parent';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'id' => array(
             'description' => 'Record ID',
             'column' => 'id',

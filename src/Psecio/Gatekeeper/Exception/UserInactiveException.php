@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class UserInactiveException extends \Exception
-{
+use Exception;
 
+class UserInactiveException extends Exception
+{
 }

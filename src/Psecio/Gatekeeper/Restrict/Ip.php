@@ -2,17 +2,20 @@
 
 namespace Psecio\Gatekeeper\Restrict;
 
-class Ip extends \Psecio\Gatekeeper\Restriction
+use Psecio\Gatekeeper\Restriction;
+use Psecio\Gatekeeper\Exception\DataNotFoundException;
+
+class Ip extends Restriction
 {
     /**
-     * Execute the evaluation for the restriction
-     *
-     * @return boolean Success/fail of evaluation
-     */
-    public function evaluate()
+    * Execute the evaluation for the restriction
+    *
+    * @return boolean Success/fail of evaluation
+    */
+    public function evaluate(): bool
     {
         if (!isset($_SERVER['REMOTE_ADDR']) || empty($_SERVER['REMOTE_ADDR'])) {
-            throw new \Psecio\Gatekeeper\Exception\DataNotFoundException('Cannot get remote address');
+            throw new DataNotFoundException('Cannot get remote address');
         }
 
         $ip = $_SERVER['REMOTE_ADDR'];
@@ -28,14 +31,15 @@ class Ip extends \Psecio\Gatekeeper\Restriction
     }
 
     /**
-     * Check to see if the value matches against the configuration type
-     *
-     * @param array $config Configuration options
-     * @param string $type Configuration type (ALLOW or DENY)
-     * @param string $value  Value to compare against
-     * @return boolean Found/not found by matching
-     */
-    public function check(array $config, $type, $value)
+    * Check to see if the value matches against the configuration type
+    *
+    * @param array $config Configuration options
+    * @param string $type Configuration type (ALLOW or DENY)
+    * @param string $value  Value to compare against
+    *
+    * @return boolean Found/not found by matching
+    */
+    public function check(array $config, string $type, string $value): bool
     {
         if (!isset($config[$type])) {
             return false;
@@ -53,16 +57,17 @@ class Ip extends \Psecio\Gatekeeper\Restriction
     }
 
     /**
-     * Evaluate to see if the pattern given matches the IP address value
-     *
-     * @param string $ipAddress IPv4 address
-     * @param string $pattern Pattern to match against
-     * @return boolean Contains/does not contain
-     */
-    public function validateIpContains($ipAddress, $pattern)
+    * Evaluate to see if the pattern given matches the IP address value
+    *
+    * @param string $ipAddress IPv4 address
+    * @param string $pattern Pattern to match against
+    *
+    * @return boolean Contains/does not contain
+    */
+    public function validateIpContains(string $ipAddress, string $pattern): bool
     {
         // Replace wildcards (*) with regex matches and escape dots
         $pattern = str_replace(array('.', '*'), array('\.', '.+'), $pattern);
-        return (preg_match('#'.$pattern.'#', $ipAddress) == true);
+        return (preg_match('#' . $pattern . '#', $ipAddress) == true);
     }
 }

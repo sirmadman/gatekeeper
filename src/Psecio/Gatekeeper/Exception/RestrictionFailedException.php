@@ -2,7 +2,8 @@
 
 namespace Psecio\Gatekeeper\Exception;
 
-class RestrictionFailedException extends \Exception
-{
+use Exception;
 
+class RestrictionFailedException extends Exception
+{
 }

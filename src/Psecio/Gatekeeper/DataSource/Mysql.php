@@ -2,15 +2,19 @@
 
 namespace Psecio\Gatekeeper\DataSource;
 
+use Psecio\Gatekeeper\DataSource;
+use Modler\Model;
+use Modler\Collection;
+use PDO;
 use InvalidArgumentException;
 
-class Mysql extends \Psecio\Gatekeeper\DataSource
+class Mysql extends DataSource
 {
     /**
      * PDO instance
      * @var \PDO
      */
-    protected $db;
+    protected mixed $db;
 
     /**
      * Create our PDO connection, then call parent
@@ -18,9 +22,9 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * @param array $config Configuration options
      * @param \PDO $pdo PDO instance
      */
-    public function __construct(array $config, \PDO $pdo = null)
+    public function __construct(array $config, mixed $pdo = null)
     {
-        $pdo = ($pdo === null) ? $this->buildPdo($config) : $pdo;
+        $pdo = $pdo ?? $this->buildPdo($config);
         $this->setDb($pdo);
         parent::__construct($config);
     }
@@ -31,11 +35,12 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * @param array $config Configuration options
      * @return \PDO instance
      */
-    public function buildPdo(array $config)
+    public function buildPdo(array $config): PDO
     {
-        return new \PDO(
-            'mysql:dbname='.$config['name'].';host='.$config['host'].';charset=utf8',
-            $config['username'], $config['password']
+        return new PDO(
+            'mysql:dbname=' . $config['name'] . ';host=' . $config['host'] . ';charset=utf8',
+            $config['username'],
+            $config['password']
         );
     }
 
@@ -44,7 +49,7 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      *
      * @return \PDO instance
      */
-    public function getDb()
+    public function getDb(): mixed
     {
         return $this->db;
     }
@@ -53,8 +58,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * Set the PDO instance
      *
      * @param \PDO $db PDO instance
+     *
+     * @return void
      */
-    public function setDb($db)
+    public function setDb(mixed $db): void
     {
         $this->db = $db;
     }
@@ -63,15 +70,16 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * Save the model and its data (either create or update)
      *
      * @param \Modler\Model $model Model instance
+     *
      * @return boolean Success/fail of save action
      */
-    public function save(\Modler\Model $model)
+    public function save(Model $model): bool
     {
         $data = $model->toArray();
 
         // see if we have any pre-save
         foreach ($data as $name => $value) {
-            $preMethod = 'pre'.ucwords($name);
+            $preMethod = 'pre' . ucwords($name);
             if (method_exists($model, $preMethod)) {
                 $model->$name = $model->$preMethod($value);
             }
@@ -88,9 +96,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * Create the record based on the data from the model
      *
      * @param \Modler\Model $model Model instance
+     *
      * @return boolean Success/fail of create action
      */
-    public function create(\Modler\Model $model)
+    public function create(Model $model): bool
     {
         $relations = array();
         $properties = $model->getProperties();
@@ -114,8 +123,8 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             $columns[$index] = $colName;
         }
 
-        $sql = 'insert into `'.$model->getTableName().'`'
-            .' ('.implode(',', $columns).') values ('.implode(',', array_values($bind)).')';
+        $sql = 'insert into `' . $model->getTableName() . '`'
+            . ' (' . implode(',', $columns) . ') values (' . implode(',', array_values($bind)) . ')';
         $result = $this->execute($sql, $data);
         if ($result !== false) {
             $model->id = $this->getDb()->lastInsertId();
@@ -134,9 +143,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * Update a record
      *
      * @param \Modler\Model $model Model instance
+     *
      * @return boolean Success/fail of operation
      */
-    public function update(\Modler\Model $model)
+    public function update(Model $model): bool
     {
         $data = $model->toArray();
         $data['created'] = date('Y-m-d H:i:s');
@@ -148,13 +158,13 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
 
         foreach ($bind as $column => $name) {
             if (!isset($properties[$column]['column'])) {
-                throw new InvalidArgumentException('Column "'.$column. '" is not defined!');
+                throw new InvalidArgumentException('Column "' . $column . '" is not defined!');
             }
             $colName = $properties[$column]['column'];
-            $update[] = $colName.' = '.$name;
+            $update[] = $colName . ' = ' . $name;
         }
 
-        $sql = 'update `'.$model->getTableName().'` set '.implode(',', $update).' where ID = '.$model->id;
+        $sql = 'update `' . $model->getTableName() . '` set ' . implode(',', $update) . ' where ID = ' . $model->id;
         return $this->execute($sql, $data);
     }
 
@@ -162,9 +172,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * Delete a record represented by the model
      *
      * @param \Modler\Model $model Model instance
+     *
      * @return boolean Success/failure of deletion
      */
-    public function delete(\Modler\Model $model)
+    public function delete(Model $model): bool
     {
         $where = $model->toArray();
         $properties = $model->getProperties();
@@ -176,10 +187,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             if (array_key_exists($column, $properties)) {
                 $column = $properties[$column]['column'];
             }
-            $update[] = $column.' = '.$name;
+            $update[] = $column . ' = ' . $name;
         }
 
-        $sql = 'delete from `'.$model->getTableName().'` where '.implode(' and ', $update);
+        $sql = 'delete from `' . $model->getTableName() . '` where ' . implode(' and ', $update);
         return $this->execute($sql, $model->toArray());
     }
 
@@ -190,9 +201,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * @param \Modler\Model $model Model instance
      * @param array $where Data to use in "where" statement
      * @param boolean $multiple Force return of single/multiple
-     * @return array Fetched data
+     *
+     * @return Model|Collection Fetched data
      */
-    public function find(\Modler\Model $model, array $where = array(), $multiple = false)
+    public function find(Model $model, array $where = array(), bool $multiple = false): Model|Collection
     {
         $properties = $model->getProperties();
         list($columns, $bind) = $this->setup($where);
@@ -202,24 +214,24 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             if (array_key_exists($column, $properties)) {
                 $column = $properties[$column]['column'];
             }
-            $update[] = $column.' = '.$name;
+            $update[] = $column . ' = ' . $name;
         }
 
-        $sql = 'select * from `'.$model->getTableName().'`';
+        $sql = 'select * from `' . $model->getTableName() . '`';
         if (!empty($update)) {
-            $sql .= ' where '.implode(' and ', $update);
+            $sql .= ' where ' . implode(' and ', $update);
         }
 
         $result = $this->fetch($sql, $where);
         if ($result !== false && count($result) == 1 && $multiple === false) {
             $model->load($result[0]);
             return $model;
-        } elseif (count($result) > 1 || $multiple === true){
+        } elseif (count($result) > 1 || $multiple === true) {
             // Make a collection instead
             $modelClass = get_class($model);
             $collectionNs = str_replace('Model', 'Collection', $modelClass);
             if (!class_exists($collectionNs)) {
-                throw new \InvalidArgumentException('Collection "'.$collectionNs.'" is invalid!');
+                throw new InvalidArgumentException('Collection "' . $collectionNs . '" is invalid!');
             }
             $collection = new $collectionNs($this);
             foreach ($result as $item) {
@@ -237,9 +249,10 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      *
      * @param \Modler\Model $model Model instance
      * @param array $where Data to use in "where" statement
-     * @return array Fetched data
+     *
+     * @return array|bool Fetched data
      */
-    public function count(\Modler\Model $model, array $where = array())
+    public function count(Model $model, array $where = array()): int|bool
     {
         $properties = $model->getProperties();
         list($columns, $bind) = $this->setup($where);
@@ -250,16 +263,19 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
             if (array_key_exists($column, $properties)) {
                 $column = $properties[$column]['column'];
             }
-            $update[] = $column.' = '.$name;
+            $update[] = $column . ' = ' . $name;
         }
 
-        $sql = 'select count(*) as `count` from '.$model->getTableName();
+        $sql = 'select count(*) as `count` from ' . $model->getTableName();
         if (!empty($update)) {
-            $sql .= ' where '.implode(' and ', $update);
+            $sql .= ' where ' . implode(' and ', $update);
         }
 
         $result = $this->fetch($sql, $where, true);
-        return $result;
+        if (is_bool($result)) {
+            return $result;
+        }
+        return intval($result);
     }
 
     /**
@@ -267,16 +283,17 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      *
      * @param string $sql SQL statement to execute
      * @param array $data Data to use in execution
+     *
      * @return boolean Success/fail of the operation
      */
-    public function execute($sql, array $data)
+    public function execute(string $sql, array $data): bool
     {
         $sth = $this->getDb()->prepare($sql);
         $result = $sth->execute($data);
 
         if ($result === false) {
             $error = $sth->errorInfo();
-            $this->lastError = 'DB ERROR: ['.$sth->errorCode().'] '.$error[2];
+            $this->lastError = 'DB ERROR: [' . $sth->errorCode() . '] ' . $error[2];
         }
         return $result;
     }
@@ -287,20 +304,24 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      * @param string $sql SQL statement
      * @param array $data Data to use in fetch operation
      * @param boolean $single Only fetch a single record
-     * @return array|boolean Fetched data or boolean false on error
+     *
+     * @return array|string|boolean Fetched data or boolean false on error
      */
-    public function fetch($sql, $data, $single = false)
+    public function fetch(string $sql, array $data, bool $single = false): array|string|bool
     {
         $sth = $this->getDb()->prepare($sql);
         $result = $sth->execute($data);
 
         if ($result === false) {
             $error = $sth->errorInfo();
-            $this->lastError = 'DB ERROR: ['.$sth->errorCode().'] '.$error[2];
+            $this->lastError = 'DB ERROR: [' . $sth->errorCode() . '] ' . $error[2];
             return false;
         }
 
         $results = $sth->fetchAll(\PDO::FETCH_ASSOC);
+        if (is_bool($results)) {
+            return $results;
+        }
         return ($single === true) ? array_shift($results) : $results;
     }
 
@@ -309,13 +330,14 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      *     (for binding to queries)
      *
      * @param array $data Data to "set up"
+     *
      * @return array Set containing the columns and bind values
      */
-    public function setup(array $data)
+    public function setup(array $data): array
     {
         $bind = array();
         foreach ($data as $column => $value) {
-            $bind[$column] = ':'.$column;
+            $bind[$column] = ':' . $column;
         }
 
         return array(array_keys($data), $bind);
@@ -326,7 +348,7 @@ class Mysql extends \Psecio\Gatekeeper\DataSource
      *
      * @return string Error string
      */
-    public function getLastError()
+    public function getLastError(): string
     {
         return $this->lastError;
     }

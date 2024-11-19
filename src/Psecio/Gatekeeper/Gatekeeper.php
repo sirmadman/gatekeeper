@@ -2,12 +2,20 @@
 
 namespace Psecio\Gatekeeper;
 
-//use Psecio\Gatekeeper\Model\User;
+use Psecio\Gatekeeper\DataSource;
+use Psecio\Gatekeeper\Restrict;
+use Psecio\Gatekeeper\Session\RememberMe;
 use PDO;
 use Dotenv\Dotenv;
-use Monolog;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use Psr\Log\LoggerInterface;
+use Modler\Model;
+use Psecio\Gatekeeper\Exception\UserInactiveException;
+use Psecio\Gatekeeper\Exception\RestrictionFailedException;
+use Psecio\Gatekeeper\Exception\ModelNotFoundException;
 use InvalidArgumentException;
+use Exception;
 
 class Gatekeeper
 {
@@ -69,8 +77,7 @@ class Gatekeeper
         array $config = array(),
         ?DataSource $datasource = null,
         ?LoggerInterface $logger = null
-    )
-    {
+    ) {
         $result = self::loadConfig($config, $envPath);
         if ($datasource === null) {
             $datasource = self::buildDataSource($config, $result);
@@ -144,10 +151,10 @@ class Gatekeeper
     {
         if ($logger === null) {
             // make a monolog logger that logs to /tmp by default
-            if (class_exists('\Monolog\Logger') === true) {
-                $logger = new Monolog\Logger('gatekeeper');
+            if (class_exists(Logger::class) === true) {
+                $logger = new Logger('gatekeeper');
                 $logger->pushHandler(
-                    new Monolog\Handler\StreamHandler('/tmp/gatekeeper.log')
+                    new StreamHandler('/tmp/gatekeeper.log')
                 );
             }
         }
@@ -175,16 +182,16 @@ class Gatekeeper
     public static function buildDataSource(array $config, $result)
     {
         $dsType = (isset($config['source'])) ? $config['source'] : 'mysql';
-        $dsClass = '\\Psecio\\Gatekeeper\\DataSource\\'.ucwords($dsType);
+        $dsClass = DataSource::class . ucwords($dsType);
         if (!class_exists($dsClass)) {
-            throw new InvalidArgumentException('Data source type "'.$dsType.'" not valid!');
+            throw new InvalidArgumentException('Data source type "' . $dsType . '" not valid!');
         }
 
         try {
             $datasource = new $dsClass($result);
             return $datasource;
-        } catch (\Exception $e) {
-            throw new \Exception('Error creating data source "'.$dsType.'" ('.$e->getMessage().')');
+        } catch (Exception $e) {
+            throw new Exception('Error creating data source "' . $dsType . '" (' . $e->getMessage() . ')');
         }
     }
 
@@ -263,7 +270,7 @@ class Gatekeeper
                 $config['prefix'] = $env['DB_PREFIX'];
             }
             return $config;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -277,37 +284,14 @@ class Gatekeeper
     */
     public static function modelFactory(string $type, array $data = array()): mixed
     {
-        $class = '\\Psecio\\Gatekeeper\\'.$type;
+        $class = '\\Psecio\\Gatekeeper\\' . $type;
         if (!class_exists($class)) {
-            throw new InvalidArgumentException('Model type "'.$class.'" does not exist!');
+            throw new InvalidArgumentException('Model type "' . $class . '" does not exist!');
         }
         $model = new $class(self::$datasource, $data);
         return $model;
     }
 
-
-    /**
-    * Safer way to evaluate if hashes equal
-    *
-    * @param string $hash1 Hash #1
-    * @param string $hash2 Hash #1
-    * @return boolean Pass/fail on hash equality
-    */
-    public static function hash_equals($hash1, $hash2): bool
-    {
-        if (\function_exists('hash_equals')) {
-            return \hash_equals($hash1, $hash2);
-        }
-        if (\strlen($hash1) !== \strlen($hash2)) {
-            return false;
-        }
-        $res = 0;
-        $len = \strlen($hash1);
-        for ($i = 0; $i < $len; ++$i) {
-            $res |= \ord($hash1[$i]) ^ \ord($hash2[$i]);
-        }
-        return $res === 0;
-    }
 
     /**
     * Authenticate a user given the username/password credentials
@@ -327,7 +311,7 @@ class Gatekeeper
         // If they're inactive, they can't log in
         if ($user->status === UserModel::STATUS_INACTIVE) {
             self::getLogger()->error('User is inactive and cannot login.', array('username' => $username));
-            throw new Exception\UserInactiveException('User "'.$username.'" is inactive and cannot log in.');
+            throw new UserInactiveException('User "' . $username . '" is inactive and cannot log in.');
         }
 
         // Handle some throttle logic, if it's turned on
@@ -342,7 +326,7 @@ class Gatekeeper
             foreach (self::$restrictions as $restriction) {
                 if ($restriction->evaluate() === false) {
                     self::getLogger()->error('Restriction failed.', array('restriction' => get_class($restriction)));
-                    throw new Exception\RestrictionFailedException('Restriction '.get_class($restriction).' failed.');
+                    throw new RestrictionFailedException('Restriction ' . get_class($restriction) . ' failed.');
                 }
             }
         }
@@ -488,14 +472,15 @@ class Gatekeeper
     * @param string $action Action called (ex: "delete" or "create")
     * @param array $args Arguments set
     * @throws \Exception\ModelNotFoundException If model type is not found
+    *
     * @return object Model instance
     */
-    public static function buildModel(string $name, array $args, string $action = 'find')
+    public static function buildModel(string $name, array $args, string $action = 'find'): object
     {
         $name = str_replace($action, '', $name);
         preg_match('/By(.+)/', $name, $matches);
 
-        if (empty($matches) && $args[0] instanceof \Modler\Model) {
+        if (empty($matches) && $args[0] instanceof Modler\Model) {
             $model = $name;
             $data = $args[0]->toArray();
         } else {
@@ -504,9 +489,9 @@ class Gatekeeper
             $data = array($property => $args[0]);
         }
 
-        $modelNs = '\\Psecio\\Gatekeeper\\'.$model.'Model';
+        $modelNs = '\\Psecio\\Gatekeeper\\' . $model . 'Model';
         if (!class_exists($modelNs)) {
-            throw new Exception\ModelNotFoundException('Model type '.$model.' could not be found');
+            throw new ModelNotFoundException('Model type ' . $model . ' could not be found');
         }
 
         $instance = new $modelNs(self::$datasource);
@@ -522,9 +507,9 @@ class Gatekeeper
     */
     public static function restrict($type, array $config): void
     {
-        $classNs = '\\Psecio\\Gatekeeper\\Restrict\\'.ucwords(strtolower($type));
+        $classNs = Restrict::class . '\\' . ucwords(strtolower($type));
         if (!class_exists($classNs)) {
-            throw new InvalidArgumentException('Restriction type "'.$type.'" is invalid');
+            throw new InvalidArgumentException('Restriction type "' . $type . '" is invalid');
         }
         $instance = new $classNs($config);
         self::$restrictions[] = $instance;
@@ -544,7 +529,7 @@ class Gatekeeper
         }
 
         $data = array_merge($_COOKIE, $config);
-        $remember = new Session\RememberMe(self::$datasource, $data, $user);
+        $remember = new RememberMe(self::$datasource, $data, $user);
         return $remember->setup();
     }
 
@@ -555,7 +540,7 @@ class Gatekeeper
     */
     public static function checkRememberMe(): bool|UserModel
     {
-        $remember = new Session\RememberMe(self::$datasource, $_COOKIE);
+        $remember = new RememberMe(self::$datasource, $_COOKIE);
         return $remember->verify();
     }
 
@@ -569,7 +554,7 @@ class Gatekeeper
         $config = [];
         $result = self::loadConfig($config);
         self::$datasource = self::buildDataSource($config, $result);
-        $remember = new Session\RememberMe(self::$datasource, $_COOKIE);
+        $remember = new RememberMe(self::$datasource, $_COOKIE);
         return $remember->destroyToken();
     }
 

@@ -16,22 +16,40 @@
             "email":"thomas.hgglund@gmail.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/sirmadman/modler"
+        }
+    ],
     "require":{
-        "php":">=7.4.0",
-        "enygma/modler": "2.*",
-        "robmorgan/phinx": "*",
-        "ircmaxell/random-lib": "^1.1.0",
-        "vlucas/phpdotenv": "*",
+        "php":">=8.1.0",
+        "sirmadman/modler": "^2.2",
+        "robmorgan/phinx": ">=0.16.5",
+        "ircmaxell/random-lib": "^1.2.0",
+        "vlucas/phpdotenv": ">=5.6.1",
         "symfony/expression-language": "~6.0.19",
-        "monolog/monolog": "^2.9 | ^3.5"
+        "monolog/monolog": "^2.9 | ^3.8"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.3"
+        "phpunit/phpunit": "^10.5.38"
     },
     "autoload": {
+        "psr-4": {
+            "Psecio\\": "src/Psecio/"
+        },
         "psr-0": {
             "Psecio": "src/"
         }
     },
-    "bin": ["bin/setup.sh"]
+    "bin": ["bin/setup.sh"],
+    "scripts": {
+        "test": "phpunit tests",
+        "phpcs": [
+            "phpcs --standard=PSR12 ./src"
+        ],
+        "phpcbf": [
+            "phpcbf --standard=PSR12 ./src"
+        ]
+    }
 }

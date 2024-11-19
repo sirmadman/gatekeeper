@@ -2,19 +2,31 @@
 
 namespace Psecio\Gatekeeper;
 
-class UserGroupModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+
+/**
+ * UserGroup class
+ *
+ * @property string $groupId
+ * @property string $userId
+ * @property string $id
+ * @property string $expire
+ * @property string $created
+ * @property string $updated
+ */
+class UserGroupModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'user_group';
+    protected string $tableName = 'user_group';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'groupId' => array(
             'description' => 'Group Id',
             'column' => 'group_id',

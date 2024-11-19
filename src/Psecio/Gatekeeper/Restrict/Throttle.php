@@ -2,24 +2,28 @@
 
 namespace Psecio\Gatekeeper\Restrict;
 
-class Throttle extends \Psecio\Gatekeeper\Restriction
+use Psecio\Gatekeeper\Gatekeeper;
+use Psecio\Gatekeeper\ThrottleModel;
+use Psecio\Gatekeeper\Restriction;
+
+class Throttle extends Restriction
 {
-    public $model;
+    public ThrottleModel $model;
 
     /**
-     * Execute the evaluation for the restriction
-     *
-     * @return boolean Success/fail of evaluation
-     */
-    public function evaluate()
+    * Execute the evaluation for the restriction
+    *
+    * @return boolean Success/fail of evaluation
+    */
+    public function evaluate(): bool
     {
         $config = $this->getConfig();
-        $throttle = \Psecio\Gatekeeper\Gatekeeper::getUserThrottle($config['userId']);
+        $throttle = Gatekeeper::getUserThrottle($config['userId']);
         $throttle->updateAttempts();
         $this->model = $throttle;
 
         // See if they're blocked
-        if ($throttle->status === \Psecio\Gatekeeper\ThrottleModel::STATUS_BLOCKED) {
+        if ($throttle->status === ThrottleModel::STATUS_BLOCKED) {
             $result = $throttle->checkTimeout();
             if ($result === false) {
                 return false;
@@ -30,7 +34,6 @@ class Throttle extends \Psecio\Gatekeeper\Restriction
                 return false;
             }
         }
-
-	return true;
+        return true;
     }
 }

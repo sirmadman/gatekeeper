@@ -5,7 +5,12 @@ namespace Psecio\Gatekeeper\DataSource;
 include_once __DIR__.'/../MockPdo.php';
 include_once __DIR__.'/../MockModel.php';
 
-class MysqlTest extends \Psecio\Gatekeeper\Base
+use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\MockPdo;
+use Psecio\Gatekeeper\MockModel;
+use Psecio\Gatekeeper\DataSource\Mysql;
+
+class MysqlTest extends Base
 {
     public function testCreatePdoOnConstruct()
     {
@@ -15,9 +20,9 @@ class MysqlTest extends \Psecio\Gatekeeper\Base
             'name' => 'dbname',
             'host' => '127.0.0.1'
         );
-        $pdo = $this->getMockBuilder('\Psecio\Gatekeeper\MockPdo')->getMock();
+        $pdo = $this->getMockBuilder(MockPdo::class)->getMock();
 
-        $mysql = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
+        $mysql = $this->getMockBuilder(Mysql::class)
             ->setConstructorArgs(array($config, $pdo))
             ->onlyMethods(array('buildPdo'))
             ->getMock();
@@ -31,7 +36,7 @@ class MysqlTest extends \Psecio\Gatekeeper\Base
      */
     public function testGetSetDatabaseInstance()
     {
-        $mysql = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
+        $mysql = $this->getMockBuilder(Mysql::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('buildPdo'))
             ->getMock();
@@ -48,14 +53,14 @@ class MysqlTest extends \Psecio\Gatekeeper\Base
     public function testGetTableName()
     {
         $config = array();
-        $pdo = $this->getMockBuilder('\Psecio\Gatekeeper\MockPdo')->getMock();
+        $pdo = $this->getMockBuilder(MockPdo::class)->getMock();
 
-        $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
+        $ds = $this->getMockBuilder(Mysql::class)
             ->setConstructorArgs(array($config, $pdo))
             ->onlyMethods(array('buildPdo'))
             ->getMock();
 
-        $mysql = new \Psecio\Gatekeeper\MockModel($ds);
+        $mysql = new MockModel($ds);
         $this->assertEquals('test', $mysql->getTableName());
     }
 }

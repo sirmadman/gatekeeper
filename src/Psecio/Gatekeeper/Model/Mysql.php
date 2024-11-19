@@ -2,13 +2,17 @@
 
 namespace Psecio\Gatekeeper\Model;
 
-class Mysql extends \Modler\Model
+use Psecio\Gatekeeper\Gatekeeper;
+use Psecio\Gatekeeper\Datasource;
+use Modler\Model;
+
+class Mysql extends Model
 {
     /**
      * Data source instance
      * @var \Psecio\Gatekeeper\DataSource
      */
-    private $db;
+    private DataSource $db;
 
     /**
      * Init the object with the datasource and optional data
@@ -16,7 +20,7 @@ class Mysql extends \Modler\Model
      * @param \Psecio\Gatekeeper\DataSource $db Datasource instance
      * @param array $data Optional data to populate in model
      */
-    public function __construct(\Psecio\Gatekeeper\DataSource $db, array $data = array())
+    public function __construct(DataSource $db, array $data = array())
     {
         $this->setDb($db);
         parent::__construct($data);
@@ -27,7 +31,7 @@ class Mysql extends \Modler\Model
      *
      * @return \Psecio\Gatekeeper\DataSource instance
      */
-    public function getDb()
+    public function getDb(): DataSource
     {
         return $this->db;
     }
@@ -36,8 +40,10 @@ class Mysql extends \Modler\Model
      * Set the datasource instance
      *
      * @param \Psecio\Gatekeeper\DataSource $db Data source instance
+     *
+     * @return void
      */
-    public function setDb(\Psecio\Gatekeeper\DataSource $db)
+    public function setDb(DataSource $db): void
     {
         $this->db = $db;
     }
@@ -47,20 +53,21 @@ class Mysql extends \Modler\Model
      *
      * @return string Table name
      */
-    public function getTableName()
+    public function getTableName(): string
     {
         $dbConfig = $this->db->config;
         return (isset($dbConfig['prefix']))
-            ? $dbConfig['prefix'].'_'.$this->tableName : $this->tableName;
+            ? $dbConfig['prefix'] . '_' . $this->tableName : $this->tableName;
     }
 
     /**
      * Make a new model instance
      *
      * @param string $model Model namespace "path"
+     *
      * @return object Model instance
      */
-    public function makeModelInstance($model)
+    public function makeModelInstance(string $model): object
     {
         $instance = new $model($this->getDb());
         return $instance;
@@ -71,9 +78,10 @@ class Mysql extends \Modler\Model
      *
      * @param array $data Property data
      * @param boolean $enforceGuard Enforce guarded properties
-     * @return boolean True when complete
+     *
+     * @return void
      */
-    public function load(array $data, $enforceGuard = true)
+    public function load(array $data, bool $enforceGuard = true): void
     {
         $loadData = array();
         foreach ($this->getProperties() as $propertyName => $propertyDetail) {
@@ -92,7 +100,6 @@ class Mysql extends \Modler\Model
             }
         }
         parent::load($loadData, $enforceGuard);
-        return true;
     }
 
     /**
@@ -100,9 +107,9 @@ class Mysql extends \Modler\Model
      *
      * @return boolean Success/fail result of save
      */
-    public function save()
+    public function save(): bool
     {
-        $ds = \Psecio\Gatekeeper\Gatekeeper::getDatasource();
+        $ds = Gatekeeper::getDatasource();
         return $ds->save($this);
     }
 }

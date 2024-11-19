@@ -2,19 +2,35 @@
 
 namespace Psecio\Gatekeeper;
 
-class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
+use Psecio\Gatekeeper\Model\Mysql;
+use Psecio\Gatekeeper\GroupParentModel;
+use Psecio\Gatekeeper\UserCollection;
+use Psecio\Gatekeeper\PermissionCollection;
+use Psecio\Gatekeeper\GroupCollection;
+
+/**
+* Group class
+*
+* @property string $description
+* @property string $id
+* @property string $name
+* @property string $expire
+* @property string $created
+* @property string $updated
+*/
+class GroupModel extends Mysql
 {
     /**
      * Database table name
      * @var string
      */
-    protected $tableName = 'groups';
+    protected string $tableName = 'groups';
 
     /**
      * Model properties
      * @var array
      */
-    protected $properties = array(
+    protected array $properties = array(
         'description' => array(
             'description' => 'Group Description',
             'column' => 'description',
@@ -49,7 +65,7 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Users belonging to this group',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\UserCollection',
+                'model' => UserCollection::class,
                 'method' => 'findByGroupId',
                 'local' => 'id'
             )
@@ -58,7 +74,7 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Permissions belonging to this group',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\PermissionCollection',
+                'model' => PermissionCollection::class,
                 'method' => 'findByGroupId',
                 'local' => 'id'
             )
@@ -67,7 +83,7 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
             'description' => 'Child Groups',
             'type' => 'relation',
             'relation' => array(
-                'model' => '\\Psecio\\Gatekeeper\\GroupCollection',
+                'model' => GroupCollection::class,
                 'method' => 'findChildrenByGroupId',
                 'local' => 'id'
             )
@@ -78,8 +94,10 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Add a user to the group
      *
      * @param integer|UserModel $user Either a user ID or a UserModel instance
+     *
+     * @return boolean
      */
-    public function addUser($user)
+    public function addUser($user): bool
     {
         if ($this->id === null) {
             return false;
@@ -99,9 +117,10 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Remove a user from a group
      *
      * @param integer|UserModel $user User ID or model instance
+     *
      * @return boolean Success/fail of removal
      */
-    public function removeUser($user)
+    public function removeUser($user): bool
     {
         if ($this->id === null) {
             return false;
@@ -121,9 +140,10 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Check to see if the group has a permission
      *
      * @param integer|PermissionModel $permission Either a permission ID or PermissionModel
+     *
      * @return boolean Permission found/not found
      */
-    public function hasPermission($permission)
+    public function hasPermission($permission): bool
     {
         if ($this->id === null) {
             return false;
@@ -144,9 +164,10 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Add a permission relation for the group
      *
      * @param integer|PermissionModel $permission Either a permission ID or PermissionModel
+     *
      * @return boolean Success/fail of removal
      */
-    public function addPermission($permission)
+    public function addPermission($permission): bool
     {
         if ($this->id === null) {
             return false;
@@ -166,9 +187,10 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Remove a permission from a group
      *
      * @param integer|PermissionModel $permission Permission model or ID
+     *
      * @return boolean Success/fail of removal
      */
-    public function removePermission($permission)
+    public function removePermission($permission): bool
     {
         if ($this->id === null) {
             return false;
@@ -188,9 +210,10 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Check if the user is in the current group
      *
      * @param integer $userId User ID
+     *
      * @return boolean Found/not found in group
      */
-    public function inGroup($userId)
+    public function inGroup($userId): bool
     {
         $userGroup = new UserGroupModel($this->getDb());
         $userGroup = $this->getDb()->find($userGroup, array(
@@ -204,14 +227,15 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Add the given group or group ID as a child of the current group
      *
      * @param integer|GroupModel $group Group ID or Group model instance
+     *
      * @return boolean Result of save operation
      */
-    public function addChild($group)
+    public function addChild($group): bool
     {
         if ($this->id === null) {
             return false;
         }
-        if ($group instanceof GroupModel) {
+        if ($group instanceof self) {
             $group = $group->id;
         }
         $childGroup = new GroupParentModel(
@@ -225,14 +249,15 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      * Remove a child group either by ID or Group model instance
      *
      * @param integer|GroupModel $group Group ID or Group model instance
+     *
      * @return boolean Result of delete operation
      */
-    public function removeChild($group)
+    public function removeChild($group): bool
     {
         if ($this->id === null) {
             return false;
         }
-        if ($group instanceof GroupModel) {
+        if ($group instanceof self) {
             $group = $group->id;
         }
         $childGroup = new GroupParentModel($this->getDb());
@@ -249,7 +274,7 @@ class GroupModel extends \Psecio\Gatekeeper\Model\Mysql
      *
      * @return boolean Expired/Not expired result
      */
-    public function isExpired()
+    public function isExpired(): bool
     {
         return ($this->expire !== null && $this->expire <= time());
     }
