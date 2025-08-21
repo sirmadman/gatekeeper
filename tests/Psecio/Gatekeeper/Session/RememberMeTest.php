@@ -69,7 +69,13 @@ class RememberMeTest extends Base
     {
         $ds = $this->buildMock(true);
         $rm = $this->buildRememberMe(
-            $ds, array('saveToken', 'getUserToken', 'setCookies', 'deleteToken')
+            $ds,
+            array(
+                'saveToken',
+                'getUserToken',
+                'setCookies',
+                'deleteToken'
+            )
         );
         $token = new AuthTokenModel($ds, array(
             'expires' => '-1 day'
@@ -91,12 +97,14 @@ class RememberMeTest extends Base
     {
         $ds = $this->buildMock(true);
         $rm = $this->buildRememberMe(
-            $ds, array('saveToken', 'getUserToken')
+            $ds,
+            array('saveToken', 'getUserToken')
         );
         $user = new UserModel($ds, array('id' => 1234));
-        $token = new AuthTokenModel($ds, array(
-            'expires' => '+1 day'
-        ));
+        $token = new AuthTokenModel(
+            $ds,
+            array('expires' => '+1 day')
+        );
 
         $rm->method('saveToken')->willReturn(false);
         $rm->method('getUserToken')->willReturn($token);
@@ -111,11 +119,10 @@ class RememberMeTest extends Base
     {
         $ds = $this->buildMock(true);
         $rm = $this->buildRememberMe(
-            $ds, array('saveToken', 'getUserToken', 'setCookies', 'destroyToken')
+            $ds,
+            array('saveToken', 'getUserToken', 'setCookies', 'destroyToken')
         );
-        $token = new AuthTokenModel($ds, array(
-            'expires' => '-1 day'
-        ));
+        $token = new AuthTokenModel($ds, array('expires' => '-1 day'));
         $user = new UserModel($ds, array('id' => 1234));
 
         $rm->method('saveToken')->willReturn($token);
@@ -132,9 +139,7 @@ class RememberMeTest extends Base
     public function testGetTokenByTokenValue(): void
     {
         $tokenString = md5('test1234');
-        $token = new AuthTokenModel($this->buildMock(true), array(
-            'expires' => '+1 day'
-        ));
+        $token = new AuthTokenModel($this->buildMock(true), array('expires' => '+1 day'));
         $ds = $this->buildMock($token);
         $rm = $this->buildRememberMe($ds, array('saveToken'));
 
@@ -148,9 +153,7 @@ class RememberMeTest extends Base
     public function testGetTokenByTokenId(): void
     {
         $tokenId = 1234;
-        $token = new AuthTokenModel($this->buildMock(true), array(
-            'expires' => '+1 day'
-        ));
+        $token = new AuthTokenModel($this->buildMock(true), array('expires' => '+1 day'));
         $ds = $this->buildMock($token);
         $rm = $this->buildRememberMe($ds, array('saveToken'));
 
@@ -164,10 +167,7 @@ class RememberMeTest extends Base
     public function testGetTokenByUser(): void
     {
         $user = new UserModel($this->buildMock(true), array('id' => 1234));
-        $token = new AuthTokenModel($this->buildMock(true), array(
-            'expires' => '+1 day',
-            'userId' => $user->id
-        ));
+        $token = new AuthTokenModel($this->buildMock(true), array('expires' => '+1 day', 'userId' => $user->id));
 
         $ds = $this->buildMock($token);
         $rm = $this->buildRememberMe($ds, array('saveToken'));

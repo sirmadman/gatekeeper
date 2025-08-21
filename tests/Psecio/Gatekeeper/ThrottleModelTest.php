@@ -7,8 +7,8 @@ use Psecio\Gatekeeper\Base;
 class ThrottleModelTest extends Base
 {
     /**
-     * Test the update of the login attempt properties on a throttle record
-     */
+    * Test the update of the login attempt properties on a throttle record
+    */
     public function testUpdateLoginAttempts()
     {
         $ds = $this->buildMock(true, 'save');
@@ -20,13 +20,14 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Test the changes made when a user is set back to allowed
-     */
+    * Test the changes made when a user is set back to allowed
+    */
     public function testSetUserToAllow()
     {
         $ds = $this->buildMock(true, 'save');
         $throttle = new ThrottleModel(
-            $ds, array('attempts' => 1, 'status' => ThrottleModel::STATUS_BLOCKED)
+            $ds,
+            array('attempts' => 1, 'status' => ThrottleModel::STATUS_BLOCKED)
         );
 
         $throttle->allow();
@@ -35,8 +36,8 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Test that a user is allowed after the default timeout (1 minute) has passed
-     */
+    * Test that a user is allowed after the default timeout (1 minute) has passed
+    */
     public function testCheckDefaultTimeoutAllowUser()
     {
         $ds = $this->buildMock(true, 'save');
@@ -53,9 +54,9 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Test that, when the status change time hasn't reached the timeout, no
-     *     status change is made.
-     */
+    * Test that, when the status change time hasn't reached the timeout, no
+    *     status change is made.
+    */
     public function testCheckDefaultTimeoutNoChange()
     {
         $ds = $this->buildMock(true, 'save');
@@ -72,8 +73,8 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Test that a user is allowed after the given timeout (-10 minutes) has passed
-     */
+    * Test that a user is allowed after the given timeout (-10 minutes) has passed
+    */
     public function testCheckInputTimeoutAllowUser()
     {
         $ds = $this->buildMock(true, 'save');
@@ -90,14 +91,15 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Check that when the user has reached or gone over the number of attempts
-     *     (default is 5) they're set to blocked
-     */
+    * Check that when the user has reached or gone over the number of attempts
+    *     (default is 5) they're set to blocked
+    */
     public function testCheckAttemptsBlockUser()
     {
         $ds = $this->buildMock(true, 'save');
         $throttle = new ThrottleModel(
-            $ds, array('attempts' => 6)
+            $ds,
+            array('attempts' => 6)
         );
         $throttle->checkAttempts();
 
@@ -105,14 +107,18 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Check that when the user hasn't reached or gone over the number of attempts
-     *     (default is 5) they're not blocked
-     */
+    * Check that when the user hasn't reached or gone over the number of attempts
+    *     (default is 5) they're not blocked
+    */
     public function testCheckAttemptsNotBlockUser()
     {
         $ds = $this->buildMock(true, 'save');
         $throttle = new ThrottleModel(
-            $ds, array('attempts' => 2, 'status' => ThrottleModel::STATUS_ALLOWED)
+            $ds,
+            array(
+                'attempts' => 2,
+                'status' => ThrottleModel::STATUS_ALLOWED
+            )
         );
         $throttle->checkAttempts();
 
@@ -120,22 +126,26 @@ class ThrottleModelTest extends Base
     }
 
     /**
-     * Test that the find by user ID works correctly and populates the model
-     */
+    * Test that the find by user ID works correctly and populates the model
+    */
     public function testFindByUserId()
     {
         $userId = 10;
         $data = array(
-            array('userId' => $userId, 'attempts' => 1, 'status' => ThrottleModel::STATUS_ALLOWED)
+            array(
+                'userId' => $userId,
+                'attempts' => 1,
+                'status' => ThrottleModel::STATUS_ALLOWED
+            )
         );
 
         $ds = $this->getMockBuilder('\Psecio\Gatekeeper\DataSource\Mysql')
-            ->disableOriginalConstructor()
-            ->onlyMethods(array('fetch'))
-            ->getMock();
+        ->disableOriginalConstructor()
+        ->onlyMethods(array('fetch'))
+        ->getMock();
 
         $ds->method('fetch')
-            ->willReturn($data);
+        ->willReturn($data);
 
         $throttle = new ThrottleModel($ds);
         $throttle->findByUserId($userId);

@@ -2,6 +2,9 @@
 
 namespace Psecio\Gatekeeper;
 
+include_once __DIR__ . '/MockPdo.php';
+include_once __DIR__ . '/MockModel.php';
+
 use PHPUnit\Framework\TestCase;
 use Psecio\Gatekeeper\DataSource\Stub;
 

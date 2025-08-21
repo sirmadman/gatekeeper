@@ -48,7 +48,8 @@ class UserGroupCollectionTest extends Base
         $groups->create($userModel, $groupIdList);
 
         $this->assertEquals(
-            count($groups->toArray()), count($groupIdList)
+            count($groups->toArray()),
+            count($groupIdList)
         );
     }
 
@@ -74,7 +75,8 @@ class UserGroupCollectionTest extends Base
         $groups->create($userModel, $groupNameList);
 
         $this->assertEquals(
-            count($groups->toArray()), count($groupNameList)
+            count($groups->toArray()),
+            count($groupNameList)
         );
     }
 }

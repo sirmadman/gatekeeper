@@ -16,7 +16,6 @@ class GatekeeperTest extends Base
     }
     public function tearDown(): void
     {
-
     }
 
     /**

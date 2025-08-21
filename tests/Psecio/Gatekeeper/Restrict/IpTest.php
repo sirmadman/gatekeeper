@@ -3,13 +3,13 @@
 namespace Psecio\Gatekeeper\Restrict;
 
 use Psecio\Gatekeeper\Base;
+use Psecio\Gatekeeper\Restrict;
 use Psecio\Gatekeeper\Exception\DataNotFoundException;
 
 class IpTest extends Base
 {
     /**
-    * Test that an exception is thrown when the remote address
-    * 	cannot be found
+    * Test that an exception is thrown when the remote address cannot be found
     *
     * @expectedException \Psecio\Gatekeeper\Exception\DataNotFoundException
     */
@@ -49,8 +49,7 @@ class IpTest extends Base
     }
 
     /**
-    * Test that a false is returned on an "allow" with
-    * 	no match
+    * Test that a false is returned on an "allow" with no match
     */
     public function testEvaluateAllowNoMatch()
     {

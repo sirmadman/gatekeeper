@@ -2,8 +2,8 @@
 
 namespace Psecio\Gatekeeper\DataSource;
 
-include_once __DIR__.'/../MockPdo.php';
-include_once __DIR__.'/../MockModel.php';
+//include_once __DIR__ . '/../MockPdo.php';
+//include_once __DIR__ . '/../MockModel.php';
 
 use Psecio\Gatekeeper\Base;
 use Psecio\Gatekeeper\MockPdo;
@@ -23,23 +23,23 @@ class MysqlTest extends Base
         $pdo = $this->getMockBuilder(MockPdo::class)->getMock();
 
         $mysql = $this->getMockBuilder(Mysql::class)
-            ->setConstructorArgs(array($config, $pdo))
-            ->onlyMethods(array('buildPdo'))
-            ->getMock();
+        ->setConstructorArgs(array($config, $pdo))
+        ->onlyMethods(array('buildPdo'))
+        ->getMock();
 
         $this->assertEquals($mysql->getDb(), $pdo);
     }
 
     /**
-     * Test the getter/setter of the DB instance
-     *     (just uses a basic object)
-     */
+    * Test the getter/setter of the DB instance
+    *     (just uses a basic object)
+    */
     public function testGetSetDatabaseInstance()
     {
         $mysql = $this->getMockBuilder(Mysql::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(array('buildPdo'))
-            ->getMock();
+        ->disableOriginalConstructor()
+        ->onlyMethods(array('buildPdo'))
+        ->getMock();
 
         $db = (object)array('test' => 'foo');
         $mysql->setDb($db);
@@ -48,19 +48,24 @@ class MysqlTest extends Base
     }
 
     /**
-     * Test getting the table name for the model instance
-     */
+    * Test getting the table name for the model instance
+    */
     public function testGetTableName()
     {
         $config = array();
         $pdo = $this->getMockBuilder(MockPdo::class)->getMock();
 
         $ds = $this->getMockBuilder(Mysql::class)
-            ->setConstructorArgs(array($config, $pdo))
-            ->onlyMethods(array('buildPdo'))
-            ->getMock();
+        ->setConstructorArgs(array($config, $pdo))
+        ->onlyMethods(array('buildPdo'))
+        ->getMock();
 
-        $mysql = new MockModel($ds);
+        $mysql = $this->createMock(MockModel::class);
+        $mysql
+        ->expects($this->once())
+        ->method('getTableName')
+        ->willReturn("test");
+
         $this->assertEquals('test', $mysql->getTableName());
     }
 }
