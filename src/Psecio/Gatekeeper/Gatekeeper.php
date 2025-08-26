@@ -77,7 +77,7 @@ class Gatekeeper
         array $config = array(),
         ?DataSource $datasource = null,
         ?LoggerInterface $logger = null
-    ) {
+    ): void {
         $result = self::loadConfig($config, $envPath);
         if ($datasource === null) {
             $datasource = self::buildDataSource($config, $result);
@@ -97,7 +97,7 @@ class Gatekeeper
     * @param string $envPath Path to .env file
     * @return array Set of configuration values
     */
-    public static function loadConfig(array $config, $envPath = null)
+    public static function loadConfig(array $config, ?string $envPath = null): bool|array
     {
         $envPath = $envPath ?? getcwd();
         $result = self::loadDotEnv($envPath);
@@ -118,7 +118,7 @@ class Gatekeeper
     *
     * @param array $config Set of configuration settings
     */
-    public static function setConfig(array $config)
+    public static function setConfig(array $config): void
     {
         self::$config = $config;
     }
@@ -132,7 +132,7 @@ class Gatekeeper
     * @param string $index Index to locate [optional]
     * @return mixed Single value if index found, otherwise array of all
     */
-    public static function getConfig($index = null)
+    public static function getConfig(?string $index = null): mixed
     {
         if ($index !== null) {
             return (isset(self::$config[$index])) ? self::$config[$index] : null;
@@ -147,7 +147,7 @@ class Gatekeeper
     *
     * @param \Psr\Log\LoggerInterface|null $logger PSR logger or null
     */
-    public static function setLogger(?LoggerInterface $logger = null)
+    public static function setLogger(?LoggerInterface $logger = null): void
     {
         if ($logger === null) {
             // make a monolog logger that logs to /tmp by default
@@ -166,7 +166,7 @@ class Gatekeeper
     *
     * @return \Psr\Log\LoggerInterface object
     */
-    public static function getLogger()
+    public static function getLogger(): LoggerInterface
     {
         return self::$logger;
     }
@@ -179,10 +179,10 @@ class Gatekeeper
     * @throws \Exception If data source type is not valid
     * @return \Psecio\Gatekeeper\DataSource instance
     */
-    public static function buildDataSource(array $config, $result)
+    public static function buildDataSource(array $config, array $result): DataSource
     {
         $dsType = (isset($config['source'])) ? $config['source'] : 'mysql';
-        $dsClass = DataSource::class . ucwords($dsType);
+        $dsClass = DataSource::class . '\\' . ucwords($dsType);
         if (!class_exists($dsClass)) {
             throw new InvalidArgumentException('Data source type "' . $dsType . '" not valid!');
         }
@@ -200,7 +200,7 @@ class Gatekeeper
     *
     * @return \Psecio\Gatekeeper\DataSource instance
     */
-    public static function getDatasource()
+    public static function getDatasource(): DataSource
     {
         return self::$datasource;
     }
@@ -210,7 +210,7 @@ class Gatekeeper
     *
     * @param \Psecio\Gatekeeper\DataSource $ds Data source instance
     */
-    public static function setDatasource($ds)
+    public static function setDatasource(DataSource $ds): void
     {
         self::$datasource = $ds;
     }
@@ -220,7 +220,7 @@ class Gatekeeper
     *
     * @return string Error message (or empty string)
     */
-    public static function getLastError()
+    public static function getLastError(): string
     {
         return self::getDatasource()->lastError;
     }
@@ -230,7 +230,7 @@ class Gatekeeper
     *
     * @return array Set of restrictions
     */
-    public static function getRestrictions()
+    public static function getRestrictions(): array
     {
         return self::$restrictions;
     }
@@ -439,7 +439,7 @@ class Gatekeeper
     * @param arrya $args Arguments set
     * @return mixed Boolean false if function not matched, otherwise Model instance
     */
-    public static function __callStatic($name, $args)
+    public static function __callStatic($name, $args): mixed
     {
         // find the action first
         $action = 'find';
@@ -565,7 +565,7 @@ class Gatekeeper
     * @param mixed $data Data to use in evaluation (single object or array)
     * @return boolean Pass/fail status of evaluation
     */
-    public static function evaluatePolicy($name, $data)
+    public static function evaluatePolicy(string $name, object|array $data): bool
     {
         // See if it's a closure policy first
         if (array_key_exists($name, self::$policies)) {
@@ -584,7 +584,7 @@ class Gatekeeper
     * @param array $policy Policy settings
     * @return boolean Success/fail of policy creation
     */
-    public static function createPolicy(array $policy)
+    public static function createPolicy(array $policy): bool
     {
         if (is_callable($policy['expression'])) {
             $name = $policy['name'];

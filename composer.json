@@ -46,7 +46,7 @@
     "scripts": {
         "test": "phpunit tests",
         "phpcs": [
-            "phpcs --standard=PSR12 ./src"
+            "phpcs --standard=PSR12 --bootstrap=./tests/bootstrap.php ./src"
         ],
         "phpcbf": [
             "phpcbf --standard=PSR12 ./src"

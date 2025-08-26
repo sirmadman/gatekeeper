@@ -8,8 +8,8 @@ use Psecio\Gatekeeper\DataSource;
 class DataSourceTest extends Base
 {
     /**
-     * Test the getter/setter for the data source configuration
-     */
+    * Test the getter/setter for the data source configuration
+    */
     public function testGetSetConfigFunction()
     {
         $config = array('test' => 'foo');
@@ -20,8 +20,8 @@ class DataSourceTest extends Base
     }
 
     /**
-     * Test the setting for the data source configuration in constructor
-     */
+    * Test the setting for the data source configuration in constructor
+    */
     public function testGetSetConfigConstruct()
     {
         $config = array('test' => 'foo');
