@@ -4,17 +4,18 @@ namespace Psecio\Gatekeeper\Handler;
 
 use Psecio\Gatekeeper\Handler;
 use Psecio\Gatekeeper\Gatekeeper as g;
+use Psecio\Gatekeeper\Model;
 use Psecio\Gatekeeper\Collection;
 use Psecio\Gatekeeper\Exception\ModelNotFoundException;
 
 class FindBy extends Handler
 {
     /**
-     * Execute the "find by *" handling - smart enough to know
-     *  if it's for one or multiple
-     *
-     * @return mixed Single model instance or collection on multiple
-     */
+    * Execute the "find by *" handling - smart enough to know
+    *  if it's for one or multiple
+    *
+    * @return mixed Single model instance or collection on multiple
+    */
     public function execute(): mixed
     {
         $name = $this->getName();
@@ -41,23 +42,20 @@ class FindBy extends Handler
 
         if (empty($matches) && strtolower(substr($name, -1)) === 's') {
             return $this->handleFindByMultiple($name, $args, $matches);
-        } else {
-            return $this->handleFindBySingle($name, $args, $matches);
         }
-
-        return $instance;
+        return $this->handleFindBySingle($name, $args, $matches);
     }
 
     /**
-     * Handle the "find by" when a single record is requested
-     *
-     * @param string $name Name of function called
-     * @param array $args Arguments list
-     * @param array $matches Matches from regex
-     *
-     * @return \Modler\Collection collection
-     */
-    public function handleFindBySingle(string $name, array $args, array $matches): Collection
+    * Handle the "find by" when a single record is requested
+    *
+    * @param string $name Name of function called
+    * @param array $args Arguments list
+    * @param array $matches Matches from regex
+    *
+    * @return \Modler\Model model
+    */
+    public function handleFindBySingle(string $name, array $args, array $matches): object
     {
         $property = lcfirst($matches[1]);
         $model = str_replace($matches[0], '', $name);
@@ -78,15 +76,15 @@ class FindBy extends Handler
     }
 
     /**
-     * Handle the "find by" when multiple are requested
-     *
-     * @param string $name Name of function called
-     * @param array $args Arguments list
-     * @param array $matches Matches from regex
-     *
-     * @return \Modler\Collection collection
-     */
-    public function handleFindByMultiple(string $name, array $args, array $matches): Collection
+    * Handle the "find by" when multiple are requested
+    *
+    * @param string $name Name of function called
+    * @param array $args Arguments list
+    * @param array $matches Matches from regex
+    *
+    * @return \Modler\Collection collection
+    */
+    public function handleFindByMultiple(string $name, array $args, array $matches): object
     {
         $data = (isset($args[0])) ? $args[0] : array();
         $model = substr($name, 0, strlen($name) - 1);

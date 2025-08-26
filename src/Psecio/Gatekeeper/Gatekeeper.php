@@ -446,6 +446,7 @@ class Gatekeeper
         foreach (self::$actions as $a) {
             if (strstr($name, $a) !== false) {
                 $action = $a;
+                break;
             }
         }
 
