@@ -16,7 +16,7 @@ class FindBy extends Handler
     *
     * @return mixed Single model instance or collection on multiple
     */
-    public function execute(): mixed
+    public function execute(): object|bool
     {
         $name = $this->getName();
         $args = $this->getArguments();
@@ -32,9 +32,9 @@ class FindBy extends Handler
     *
     * @throws \Exception\ModelNotFoundException If model type is not found
     * @throws \Exception If Data could not be found
-    * @return object Model instance
+    * @return \Modler\Model|\Modler\Collection|false Model instance
     */
-    public function handleFindBy(string $name, array $args): object
+    public function handleFindBy(string $name, array $args): object|bool
     {
         $action = 'find';
         $name = str_replace($action, '', $name);
@@ -53,9 +53,9 @@ class FindBy extends Handler
     * @param array $args Arguments list
     * @param array $matches Matches from regex
     *
-    * @return \Modler\Model model
+    * @return \Modler\Model|false model
     */
-    public function handleFindBySingle(string $name, array $args, array $matches): object
+    public function handleFindBySingle(string $name, array $args, array $matches): object|bool
     {
         $property = lcfirst($matches[1]);
         $model = str_replace($matches[0], '', $name);
@@ -82,9 +82,9 @@ class FindBy extends Handler
     * @param array $args Arguments list
     * @param array $matches Matches from regex
     *
-    * @return \Modler\Collection collection
+    * @return Modler\Collection collection
     */
-    public function handleFindByMultiple(string $name, array $args, array $matches): object
+    public function handleFindByMultiple(string $name, array $args, array $matches): object|bool
     {
         $data = (isset($args[0])) ? $args[0] : array();
         $model = substr($name, 0, strlen($name) - 1);
