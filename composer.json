@@ -28,7 +28,7 @@
         "robmorgan/phinx": ">=0.16.12",
         "ircmaxell/random-lib": "^1.2.0",
         "vlucas/phpdotenv": "^5.7",
-        "symfony/expression-language": "^6.4|^7.4",
+        "symfony/expression-language": "^6.4|^7.4|^8.1",
         "monolog/monolog": "^2.9 | ^3"
     },
     "require-dev": {
